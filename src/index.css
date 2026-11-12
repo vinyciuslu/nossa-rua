@@ -1,0 +1,245 @@
+@import 'tailwindcss';
+
+/*
+ * Variante `frame`: só vale em telas grandes o bastante para mostrar a moldura de
+ * smartphone (>= 768px de largura E >= 700px de altura). Abaixo disso o app ocupa
+ * a tela inteira. Decidimos por media query (e não por user-agent) para que
+ * redimensionar a janela funcione de forma previsível.
+ */
+@custom-variant frame (@media (min-width: 768px) and (min-height: 700px));
+
+/* ------------------------------------------------------------------ */
+/* TOKENS SEMÂNTICOS                                                  */
+/* Os componentes usam APENAS estes nomes (bg-surface, text-ink, ...), */
+/* nunca cores literais. Cada modo de cor redefine os valores abaixo.  */
+/* ------------------------------------------------------------------ */
+:root {
+  --canvas: #f6f4ef;
+  --surface: #ffffff;
+  --surface-warm: #f4ecdc;
+  --ink: #14212b;
+  --ink-muted: #4a5a68;
+  --line: #ddd6c8;
+  --line-strong: #7a7467;
+
+  --primary: #0e5a8a;
+  --on-primary: #ffffff;
+  --primary-soft: #e1edf5;
+  --primary-ink: #0a3f63;
+
+  --accent: #c9411f;
+  --on-accent: #ffffff;
+
+  /* Semânticas de estado: sempre usadas junto de ícone e rótulo. */
+  --ok: #1e8e4e;
+  --ok-soft: #e2f3e8;
+  --ok-ink: #12602f;
+  --warn: #b97a00;
+  --warn-soft: #fff1cc;
+  --warn-ink: #6b4a00;
+  --danger: #c62828;
+  --danger-soft: #fbe4e2;
+  --danger-ink: #8e1b1b;
+
+  --focus: #0a3f63;
+  --border-width: 1px;
+  --badge-border: transparent;
+
+  /* Escala de ícones e área de toque (alterada pelo modo "ícones grandes"). */
+  --icon-sm: 16px;
+  --icon-md: 20px;
+  --icon-lg: 24px;
+  --tap-min: 44px;
+
+  --font-display-choice: 'Sora Variable', 'Atkinson Hyperlegible', system-ui, sans-serif;
+}
+
+/* Daltonismo vermelho-verde (protanopia / deuteranopia):
+   azul para "bom", âmbar para "atenção", marrom-avermelhado escuro para "ruim".
+   A diferença de luminosidade também ajuda, além de ícones e rótulos. */
+[data-color-mode='red-green'] {
+  --ok: #0072b2;
+  --ok-soft: #dcebf7;
+  --ok-ink: #0b4a75;
+  --warn: #b07a00;
+  --warn-soft: #fbf0d0;
+  --warn-ink: #5e4200;
+  --danger: #8f2d00;
+  --danger-soft: #f6e3d9;
+  --danger-ink: #6e2200;
+}
+
+/* Daltonismo azul-amarelo (tritanopia): preserva o eixo vermelho-verde. */
+[data-color-mode='blue-yellow'] {
+  --ok: #1e8e4e;
+  --ok-soft: #e2f3e8;
+  --ok-ink: #12602f;
+  --warn: #a8327f;
+  --warn-soft: #f7e3f0;
+  --warn-ink: #6e1f52;
+  --danger: #c62828;
+  --danger-soft: #fbe4e2;
+  --danger-ink: #8e1b1b;
+}
+
+/* Alto contraste: preto sobre branco, bordas pretas, foco espesso. */
+[data-color-mode='high-contrast'] {
+  --canvas: #ffffff;
+  --surface: #ffffff;
+  --surface-warm: #f2f2f2;
+  --ink: #000000;
+  --ink-muted: #1f1f1f;
+  --line: #000000;
+  --line-strong: #000000;
+  --primary: #00386b;
+  --on-primary: #ffffff;
+  --primary-soft: #f2f2f2;
+  --primary-ink: #00264a;
+  --accent: #a32b0f;
+  --on-accent: #ffffff;
+  --ok: #005c27;
+  --ok-soft: #f2f2f2;
+  --ok-ink: #003d19;
+  --warn: #7a4f00;
+  --warn-soft: #f2f2f2;
+  --warn-ink: #4d3100;
+  --danger: #a10000;
+  --danger-soft: #f2f2f2;
+  --danger-ink: #6b0000;
+  --focus: #000000;
+  --border-width: 2px;
+  --badge-border: currentColor;
+}
+
+/* Ícones grandes: ícones, áreas de toque e texto crescem juntos. */
+[data-icon-size='large'] {
+  --icon-sm: 22px;
+  --icon-md: 28px;
+  --icon-lg: 34px;
+  --tap-min: 56px;
+}
+html[data-icon-size='large'] {
+  font-size: 112.5%;
+}
+
+/* ------------------------------------------------------------------ */
+/* TAILWIND: só os nossos tokens existem como cores                    */
+/* ------------------------------------------------------------------ */
+@theme {
+  --color-*: initial;
+  --font-sans:
+    'Atkinson Hyperlegible', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --radius-card: 1rem;
+  --radius-control: 0.75rem;
+  --shadow-frame:
+    0 30px 60px -20px rgb(20 33 43 / 0.45), 0 8px 20px -8px rgb(20 33 43 / 0.3);
+  --shadow-sheet: 0 -8px 30px -10px rgb(20 33 43 / 0.35);
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@theme inline {
+  --color-black: #000000;
+  --color-white: #ffffff;
+  --color-canvas: var(--canvas);
+  --color-surface: var(--surface);
+  --color-surface-warm: var(--surface-warm);
+  --color-ink: var(--ink);
+  --color-ink-muted: var(--ink-muted);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-primary: var(--primary);
+  --color-on-primary: var(--on-primary);
+  --color-primary-soft: var(--primary-soft);
+  --color-primary-ink: var(--primary-ink);
+  --color-accent: var(--accent);
+  --color-on-accent: var(--on-accent);
+  --color-ok: var(--ok);
+  --color-ok-soft: var(--ok-soft);
+  --color-ok-ink: var(--ok-ink);
+  --color-warn: var(--warn);
+  --color-warn-soft: var(--warn-soft);
+  --color-warn-ink: var(--warn-ink);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-danger-ink: var(--danger-ink);
+  --color-focus: var(--focus);
+  --font-display: var(--font-display-choice);
+}
+
+/* Borda fina que engrossa no modo de alto contraste. */
+@utility hairline {
+  border-width: var(--border-width);
+}
+
+/* ------------------------------------------------------------------ */
+/* BASE                                                               */
+/* ------------------------------------------------------------------ */
+@layer base {
+  html {
+    background-color: var(--canvas);
+    color: var(--ink);
+    font-family: var(--font-sans);
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    min-height: 100dvh;
+    background-color: var(--canvas);
+  }
+
+  button {
+    cursor: pointer;
+    font: inherit;
+  }
+
+  /* Foco visível e consistente em tudo que é interativo. */
+  :focus-visible {
+    outline: 3px solid var(--focus);
+    outline-offset: 2px;
+  }
+}
+
+/* Respeita a preferência do sistema por movimento reduzido. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+@keyframes sheet-up {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes pulse-soft {
+  50% {
+    opacity: 0.55;
+  }
+}
