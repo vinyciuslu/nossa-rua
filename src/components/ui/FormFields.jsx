@@ -4,8 +4,9 @@ import { useId } from 'react'
  * Campos de formulário acessíveis: rótulo visível ligado ao campo, dica e erro
  * ligados por aria-describedby, e "obrigatório" escrito (não só um asterisco).
  *
- * São componentes simples de propósito. Na Etapa 2 entram React Hook Form + Zod,
- * que se encaixam aqui via `ref` e `{...register('campo')}`.
+ * São componentes simples de propósito. Funcionam com ou sem React Hook Form:
+ * `{...register('campo')}` entrega name, onChange, onBlur e ref, que vão direto
+ * para o elemento (em React 19 o `ref` chega como propriedade comum).
  */
 function FieldShell({ id, label, hint, error, required, children }) {
   const hintId = `${id}-hint`
@@ -88,5 +89,33 @@ export function SelectField({ label, hint, error, required, children, ...props }
         </select>
       )}
     </FieldShell>
+  )
+}
+
+/** Caixa de seleção com rótulo clicável. O texto pode conter links (children). */
+export function CheckboxField({ label, error, ...props }) {
+  const id = useId()
+  const errorId = `${id}-error`
+  return (
+    <div className="flex flex-col gap-1.5">
+      <div className="flex items-start gap-3">
+        <input
+          id={id}
+          type="checkbox"
+          aria-invalid={error ? true : undefined}
+          aria-describedby={error ? errorId : undefined}
+          className="mt-0.5 size-6 shrink-0 accent-primary"
+          {...props}
+        />
+        <label htmlFor={id} className="text-ink">
+          {label}
+        </label>
+      </div>
+      {error && (
+        <p id={errorId} role="alert" className="text-sm font-bold text-danger-ink">
+          {error}
+        </p>
+      )}
+    </div>
   )
 }

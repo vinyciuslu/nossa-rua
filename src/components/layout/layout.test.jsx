@@ -3,24 +3,28 @@ import userEvent from '@testing-library/user-event'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { describe, expect, it } from 'vitest'
 import { AccessibilityProvider } from '../../context/AccessibilityContext.jsx'
+import { SessionProvider } from '../../context/SessionContext.jsx'
+import { signInDemo } from '../../services/accountService.js'
 import { AppShell } from './AppShell.jsx'
 import { PhoneFrame } from './PhoneFrame.jsx'
 
 function renderApp(path = '/inicio') {
   return render(
     <AccessibilityProvider>
-      <MemoryRouter initialEntries={[path]}>
-        <PhoneFrame>
-          <Routes>
-            <Route element={<AppShell />}>
-              <Route path="inicio" element={<p>Tela Início</p>} />
-              <Route path="estado" element={<p>Tela Estado</p>} />
-              <Route path="mapa" element={<p>Tela Mapa</p>} />
-              <Route path="perfil" element={<p>Tela Perfil</p>} />
-            </Route>
-          </Routes>
-        </PhoneFrame>
-      </MemoryRouter>
+      <SessionProvider>
+        <MemoryRouter initialEntries={[path]}>
+          <PhoneFrame>
+            <Routes>
+              <Route element={<AppShell />}>
+                <Route path="inicio" element={<p>Tela Início</p>} />
+                <Route path="estado" element={<p>Tela Estado</p>} />
+                <Route path="mapa" element={<p>Tela Mapa</p>} />
+                <Route path="perfil" element={<p>Tela Perfil</p>} />
+              </Route>
+            </Routes>
+          </PhoneFrame>
+        </MemoryRouter>
+      </SessionProvider>
     </AccessibilityProvider>,
   )
 }
@@ -50,11 +54,18 @@ describe('AppShell + navegação', () => {
     expect(screen.getByText('Tela Mapa')).toBeInTheDocument()
   })
 
-  it('o avatar do cabeçalho leva ao perfil e tem nome acessível', async () => {
+  it('visitante vê "Entrar" no cabeçalho, que leva a /perfil (a guarda decide o resto)', async () => {
     const user = userEvent.setup()
     renderApp('/inicio')
-    await user.click(screen.getByRole('link', { name: 'Meu perfil' }))
+    await user.click(screen.getByRole('link', { name: 'Entrar' }))
     expect(screen.getByText('Tela Perfil')).toBeInTheDocument()
+  })
+
+  it('quem entrou vê as iniciais e o link "Meu perfil"', async () => {
+    await signInDemo('resident')
+    renderApp('/inicio')
+    const link = await screen.findByRole('link', { name: 'Meu perfil' })
+    expect(link).toHaveTextContent('MD')
   })
 
   it('oferece link para pular ao conteúdo principal', () => {

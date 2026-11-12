@@ -15,15 +15,31 @@ npm run format     # prettier
 npm run build      # build de produção
 ```
 
-Rotas disponíveis na Etapa 1:
+Rotas disponíveis (até a Etapa 2):
 
-| Rota                 | O que é                                                      |
-| -------------------- | ------------------------------------------------------------ |
-| `/inicio`            | Início (placeholder honesto, chega na Etapa 3)               |
-| `/estado`            | Estado (placeholder, Etapa 4)                                |
-| `/mapa`              | Mapa (placeholder, Etapa 5)                                  |
-| `/perfil`            | Perfil (placeholder, Etapa 2)                                |
-| `/dev/design-system` | Guia de estilo vivo, fora da moldura (revisão de identidade) |
+| Rota                     | O que é                                                            |
+| ------------------------ | ------------------------------------------------------------------ |
+| `/inicio`                | Início (placeholder honesto, chega na Etapa 3)                     |
+| `/estado`                | Estado (placeholder, Etapa 4)                                      |
+| `/mapa`                  | Mapa (placeholder, Etapa 5)                                        |
+| `/entrar`, `/cadastro`   | Entrada e cadastro simulados de morador (CPF) e comércio (CNPJ)    |
+| `/acessibilidade`        | Modo de cor e tamanho dos ícones, sem precisar entrar              |
+| `/perfil`                | Perfil e "como você aparece" (exige conta de morador/comércio)     |
+| `/perfil/bairros`        | Bairros acompanhados, com rótulos Casa, Trabalho, Faculdade, Outro |
+| `/perfil/configuracoes`  | Acessibilidade, privacidade (simulada), baixar e excluir dados     |
+| `/admin/login`, `/admin` | Acesso administrativo separado; o painel chega na Etapa 6          |
+| `/dev/design-system`     | Guia de estilo vivo, fora da moldura (revisão de identidade)       |
+
+### Contas de demonstração
+
+Na tela de entrada há botões para entrar como morador(a) ou comércio local sem cadastro. O acesso administrativo usa `admin@demo.nossarua.test` / `demo-admin` (os valores aparecem na própria tela `/admin/login`).
+
+### Privacidade no protótipo
+
+- **CPF/CNPJ:** o número é só validado (dígitos verificadores) no formulário e descartado. Não é gravado, nem em versão codificada (hash). A conta guarda apenas o _tipo_ (`cpf`, `cnpj`, `admin`) e um id interno. O botão "Gerar CPF/CNPJ fictício" evita que alguém digite um documento real.
+- **Senha:** não existe senha de cidadão; a conta é identificada pelo e-mail, que fica só neste aparelho. A senha do admin de demonstração é pública e fixa.
+- **Autor dos relatos:** por padrão aparece como "Morador(a) de {bairro}". Permissões e privacidade são **simuladas**.
+- Dados ficam em `localStorage` (prefixo `nossa-rua:v1:`). Em "Configurações" dá para baixar ou excluir tudo.
 
 ## Moldura de smartphone
 
@@ -34,11 +50,12 @@ Em janelas com pelo menos 768 px de largura **e** 700 px de altura, o app aparec
 ```
 src/
 ├─ app/          composição: rotas e provedores
-├─ components/   layout/ (moldura, cabeçalho, navegação), ui/ (componentes), illustrations/
-├─ config/       valores ajustáveis (nome do app, modos de cor)
-├─ context/      contextos transversais (acessibilidade; sessão na Etapa 2)
-├─ domain/       regras de negócio puras (sem React, sem I/O)
-├─ features/     uma pasta por área do produto (community, state, map, profile, dev)
+├─ components/   layout/ (moldura, cabeçalho, navegação, Page), ui/ (componentes), illustrations/
+├─ config/       valores ajustáveis (nome do app, modos de cor, contas de demonstração)
+├─ context/      contextos transversais (acessibilidade, sessão)
+├─ domain/       regras de negócio puras (contas, documentos, bairros, validações Zod)
+├─ features/     uma pasta por área do produto (auth, profile, admin, community, state, map, dev)
+├─ services/     tudo que toca em armazenamento (localStorage) e simula um backend assíncrono
 ├─ utils/        funções utilitárias pequenas
 └─ test/         apoio dos testes (cores, leitura dos temas)
 ```
@@ -48,7 +65,7 @@ Regras verificadas pelo lint:
 - `domain/` não importa React, componentes, features nem serviços.
 - Uma feature não importa de outra feature.
 
-As camadas de serviços, persistência (localStorage + IndexedDB), relógio de simulação e dados fictícios **ainda não existem**: entram na primeira etapa que realmente precisa delas (ver roadmap).
+`services/` expõe funções assíncronas (com um pequeno atraso simulado). As telas não sabem onde os dados ficam: trocar por um backend muda o conteúdo dos serviços, não as telas. Ainda **não existem**, por falta de necessidade concreta: IndexedDB para imagens, relógio de simulação, dados fictícios (seed) e TanStack Query. Entram na Etapa 3, quando o feed precisar deles.
 
 ## Design system
 
@@ -58,8 +75,8 @@ As camadas de serviços, persistência (localStorage + IndexedDB), relógio de s
 
 ## Roadmap
 
-1. Fundação (esta etapa)
-2. Autenticação e perfis
+1. Fundação
+2. Autenticação e perfis (esta etapa)
 3. Comunidade
 4. Feed estadual
 5. Mobilidade
