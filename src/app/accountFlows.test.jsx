@@ -3,19 +3,26 @@ import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import { describe, expect, it, vi } from 'vitest'
 import { DEMO_ACCOUNTS, DEMO_ADMIN_PASSWORD } from '../config/demoAccounts.js'
+import { QueryClientProvider } from '@tanstack/react-query'
+import { ClockProvider } from '../context/ClockContext.jsx'
 import { AccessibilityProvider } from '../context/AccessibilityContext.jsx'
 import { SessionProvider } from '../context/SessionContext.jsx'
 import { AppRoutes } from './App.jsx'
+import { createQueryClient } from './queryClient.js'
 
 function renderAt(path) {
   return render(
-    <AccessibilityProvider>
-      <SessionProvider>
-        <MemoryRouter initialEntries={[path]}>
-          <AppRoutes />
-        </MemoryRouter>
-      </SessionProvider>
-    </AccessibilityProvider>,
+    <QueryClientProvider client={createQueryClient({ retry: false, staleTime: 0 })}>
+      <AccessibilityProvider>
+        <ClockProvider>
+          <SessionProvider>
+            <MemoryRouter initialEntries={[path]}>
+              <AppRoutes />
+            </MemoryRouter>
+          </SessionProvider>
+        </ClockProvider>
+      </AccessibilityProvider>
+    </QueryClientProvider>,
   )
 }
 

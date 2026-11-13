@@ -1,5 +1,8 @@
+import { createQueryClient } from './queryClient.js'
+import { QueryClientProvider } from '@tanstack/react-query'
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { AccessibilityProvider } from '../context/AccessibilityContext.jsx'
+import { ClockProvider } from '../context/ClockContext.jsx'
 import { SessionProvider } from '../context/SessionContext.jsx'
 import { AppShell } from '../components/layout/AppShell.jsx'
 import { PhoneFrame } from '../components/layout/PhoneFrame.jsx'
@@ -11,6 +14,7 @@ import { AdminLoginPage } from '../features/admin/AdminLoginPage.jsx'
 import { LoginPage } from '../features/auth/LoginPage.jsx'
 import { SignupPage } from '../features/auth/SignupPage.jsx'
 import { DesignSystemPage } from '../features/dev/DesignSystemPage.jsx'
+import { PostDetailPage } from '../features/community/PostDetailPage.jsx'
 import { CommunityFeedPage } from '../features/community/CommunityFeedPage.jsx'
 import { MapPage } from '../features/map/MapPage.jsx'
 import { AccessibilityPage } from '../features/profile/AccessibilityPage.jsx'
@@ -24,6 +28,8 @@ import {
   RequireAdmin,
   RequireResident,
 } from './RouteGuards.jsx'
+
+const queryClient = createQueryClient()
 
 /** Tudo que aparece dentro da moldura de smartphone (ou em tela cheia no celular). */
 function PhoneLayout() {
@@ -56,6 +62,7 @@ export function AppRoutes() {
       <Route element={<PhoneLayout />}>
         <Route index element={<Navigate to="/inicio" replace />} />
         <Route path="inicio" element={<CommunityFeedPage />} />
+        <Route path="publicacao/:id" element={<PostDetailPage />} />
         <Route path="estado" element={<StateFeedPage />} />
         <Route path="mapa" element={<MapPage />} />
         <Route path="acessibilidade" element={<AccessibilityPage />} />
@@ -84,12 +91,16 @@ export function AppRoutes() {
 
 export function App() {
   return (
-    <AccessibilityProvider>
-      <SessionProvider>
-        <BrowserRouter>
-          <AppRoutes />
-        </BrowserRouter>
-      </SessionProvider>
-    </AccessibilityProvider>
+    <QueryClientProvider client={queryClient}>
+      <AccessibilityProvider>
+        <ClockProvider>
+          <SessionProvider>
+            <BrowserRouter>
+              <AppRoutes />
+            </BrowserRouter>
+          </SessionProvider>
+        </ClockProvider>
+      </AccessibilityProvider>
+    </QueryClientProvider>
   )
 }

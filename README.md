@@ -65,7 +65,14 @@ Regras verificadas pelo lint:
 - `domain/` não importa React, componentes, features nem serviços.
 - Uma feature não importa de outra feature.
 
-`services/` expõe funções assíncronas (com um pequeno atraso simulado). As telas não sabem onde os dados ficam: trocar por um backend muda o conteúdo dos serviços, não as telas. Ainda **não existem**, por falta de necessidade concreta: IndexedDB para imagens, relógio de simulação, dados fictícios (seed) e TanStack Query. Entram na Etapa 3, quando o feed precisar deles.
+### Dados simulados e tempo
+
+- Todo conteúdo do feed é fictício e genérico (sem ruas, empresas ou ocorrências reais), gerado por bairro com semente fixa (`src/data/seedPosts.js`): mesmo bairro, mesmas publicações.
+- O ciclo de status dos relatos é **simulado** a partir do id do relato (`domain/statusSimulation.js`) e revelado com o passar do tempo. Cada etapa gerada traz o selo "Atualização simulada", e algumas terminam sem resolução ou pulam etapas, para o acompanhamento ser honesto.
+- O **relógio de demonstração** (Configurações) adianta o tempo só neste aparelho, para ver o ciclo andar sem esperar dias.
+- Apoios ficam em `localStorage`. Só contas de morador apoiam relatos.
+
+`services/` expõe funções assíncronas (com um pequeno atraso simulado). As telas não sabem onde os dados ficam: trocar por um backend muda o conteúdo dos serviços, não as telas. Consultas passam pelo TanStack Query (cache, carregando e erro). Ainda **não existe**, por falta de necessidade concreta, o IndexedDB para imagens: entra na Etapa 3B, com a publicação de relatos com foto.
 
 ## Design system
 

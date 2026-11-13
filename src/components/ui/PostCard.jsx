@@ -48,7 +48,9 @@ export function PostCard({
   supports = 0,
   supported = false,
   onToggleSupport,
+  supportPending = false,
   onOpen,
+  detail = false, // na tela de detalhe: texto completo, título como h1, sem botões de abrir
   // aviso
   level = 'info',
   source = 'moderation',
@@ -57,6 +59,7 @@ export function PostCard({
 }) {
   const titleId = useId()
   const notice = LEVELS[level]
+  const Title = detail ? 'h1' : 'h3'
 
   const shell = {
     report: 'hairline border-line bg-surface',
@@ -98,13 +101,16 @@ export function PostCard({
           {simulated && <SimulatedBadge />}
         </div>
 
-        <h3 id={titleId} className="font-display text-lg leading-snug font-bold text-ink">
+        <Title
+          id={titleId}
+          className="font-display text-lg leading-snug font-bold text-ink"
+        >
           {title}
-        </h3>
+        </Title>
         {type === 'commercial' && businessName && (
           <p className="text-sm font-bold text-ink-muted">{businessName}</p>
         )}
-        <p className="line-clamp-3 text-ink">{description}</p>
+        <p className={`text-ink ${detail ? '' : 'line-clamp-3'}`}>{description}</p>
 
         <p className="flex items-center gap-1.5 text-sm text-ink-muted">
           <Icon icon={MapPin} size="sm" />
@@ -117,13 +123,16 @@ export function PostCard({
           <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
             <StatusBadge status={status} />
             <div className="flex gap-2">
-              <Button variant="ghost" onClick={onOpen}>
-                Acompanhar
-              </Button>
+              {!detail && (
+                <Button variant="ghost" onClick={onOpen}>
+                  Acompanhar
+                </Button>
+              )}
               <Button
                 variant={supported ? 'primary' : 'secondary'}
                 icon={HandHeart}
                 aria-pressed={supported}
+                disabled={supportPending}
                 onClick={onToggleSupport}
               >
                 {supported ? 'Apoiado' : 'Apoiar'} · {supports}
@@ -131,7 +140,7 @@ export function PostCard({
             </div>
           </div>
         )}
-        {type === 'commercial' && (
+        {type === 'commercial' && !detail && (
           <div className="pt-1">
             <Button variant="secondary" onClick={onOpen}>
               Ver detalhes

@@ -11,6 +11,7 @@ import { useSession } from '../../context/SessionContext.jsx'
 import { AUTHOR_DISPLAY, getAuthorLabel } from '../../domain/account.js'
 import { downloadJson } from '../../utils/download.js'
 import { AccessibilitySettings } from './AccessibilitySettings.jsx'
+import { DemoClockSettings } from './DemoClockSettings.jsx'
 
 function Section({ id, title, children }) {
   return (
@@ -99,6 +100,10 @@ export function SettingsPage() {
         <Notice tone="info">
           <p>No protótipo, as permissões e a privacidade são apenas simuladas.</p>
         </Notice>
+      </Section>
+
+      <Section id="clock-title" title="Relógio de demonstração">
+        <DemoClockSettings />
       </Section>
 
       <Section id="data-title" title="Seus dados">
