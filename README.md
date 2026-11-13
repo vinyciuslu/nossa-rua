@@ -15,20 +15,21 @@ npm run format     # prettier
 npm run build      # build de produção
 ```
 
-Rotas disponíveis (até a Etapa 2):
+Rotas disponíveis (até a Etapa 4):
 
-| Rota                     | O que é                                                            |
-| ------------------------ | ------------------------------------------------------------------ |
-| `/inicio`                | Início (placeholder honesto, chega na Etapa 3)                     |
-| `/estado`                | Estado (placeholder, Etapa 4)                                      |
-| `/mapa`                  | Mapa (placeholder, Etapa 5)                                        |
-| `/entrar`, `/cadastro`   | Entrada e cadastro simulados de morador (CPF) e comércio (CNPJ)    |
-| `/acessibilidade`        | Modo de cor e tamanho dos ícones, sem precisar entrar              |
-| `/perfil`                | Perfil e "como você aparece" (exige conta de morador/comércio)     |
-| `/perfil/bairros`        | Bairros acompanhados, com rótulos Casa, Trabalho, Faculdade, Outro |
-| `/perfil/configuracoes`  | Acessibilidade, privacidade (simulada), baixar e excluir dados     |
-| `/admin/login`, `/admin` | Acesso administrativo separado; o painel chega na Etapa 6          |
-| `/dev/design-system`     | Guia de estilo vivo, fora da moldura (revisão de identidade)       |
+| Rota                         | O que é                                                            |
+| ---------------------------- | ------------------------------------------------------------------ |
+| `/inicio`, `/publicacao/:id` | Feed da comunidade e detalhe (relatos, avisos, comércio)           |
+| `/relatar`, `/anunciar`      | Publicar relato (morador) ou anúncio (comércio)                    |
+| `/estado`, `/estado/:id`     | Feed estadual: alertas, notícias e eventos (conteúdo fictício)     |
+| `/mapa`                      | Mapa (placeholder, Etapa 5)                                        |
+| `/entrar`, `/cadastro`       | Entrada e cadastro simulados de morador (CPF) e comércio (CNPJ)    |
+| `/acessibilidade`            | Modo de cor e tamanho dos ícones, sem precisar entrar              |
+| `/perfil`                    | Perfil e "como você aparece" (exige conta de morador/comércio)     |
+| `/perfil/bairros`            | Bairros acompanhados, com rótulos Casa, Trabalho, Faculdade, Outro |
+| `/perfil/configuracoes`      | Acessibilidade, privacidade (simulada), baixar e excluir dados     |
+| `/admin/login`, `/admin`     | Acesso administrativo separado; o painel chega na Etapa 6          |
+| `/dev/design-system`         | Guia de estilo vivo, fora da moldura (revisão de identidade)       |
 
 ### Contas de demonstração
 
@@ -74,7 +75,17 @@ Regras verificadas pelo lint:
 - **Fotos** ficam no IndexedDB (o `localStorage` não comporta arquivos). Antes de salvar, a foto é redesenhada em um canvas e gravada como JPEG de no máximo 1280 px: isso reduz o tamanho, corrige a rotação da câmera e **remove os metadados, inclusive o GPS**. A foto só é obrigatória onde ajuda a comprovar o problema (buraco, lixo, árvore, calçada).
 - **Relatos parecidos** (`domain/similarity.js`): ao escrever, a pessoa vê relatos abertos, da mesma categoria e bairro, dos últimos 30 dias, que repetem pelo menos 2 das suas palavras (e metade delas). Regra simples e explicável, sem IA; serve para apoiar em vez de duplicar.
 - **Anúncios**: no máximo 2 a cada 7 dias por conta e só em bairros do município do comércio (`domain/commercialLimits.js`).
-- Excluir a conta apaga também os relatos, anúncios, fotos e apoios dela.
+- Excluir a conta apaga também os relatos, anúncios, fotos, apoios e eventos salvos dela.
+
+### Feed estadual (Etapa 4)
+
+- **Tudo é fictício, inclusive as instituições.** As fontes ("Central Fictícia de Alertas", "Rede Cultural Fictícia"...) foram inventadas e carregam o selo "Instituição fictícia"; o selo "Fonte institucional verificada" não é usado, porque exigiria integração real. Nenhum alerta deve ser seguido de verdade (`src/data/seedState.js`).
+- **Alertas** têm nível (informativo, atenção, urgente) e validade. Depois de expirar viram "Encerrado": somem da visão "Tudo", mas continuam no filtro "Alertas". **Eventos** que já passaram seguem o mesmo princípio ("Já aconteceu").
+- As datas são relativas à primeira abertura do app (`services/seedEpoch.js`, compartilhada com os relatos), então o relógio de demonstração faz alertas expirarem e eventos acontecerem.
+- **Região**: quem acompanha bairros escolhe entre "Todo o estado" e "Meus municípios" (conteúdo estadual + dos municípios acompanhados). "Salvos" ignora a região.
+- **Salvar evento**: contas de morador e de comércio; guardado por conta em `localStorage` e apagado junto com a conta.
+- **Adicionar à agenda**: gera um `.ics` no próprio navegador (`domain/ics.js`: CRLF, texto escapado, linhas dobradas em 75 bytes, datas em UTC). O título leva o prefixo "[Demonstração]" para o evento fictício não ser confundido com um compromisso real.
+- **Compartilhar**: usa o menu do aparelho (Web Share API) e, onde não existe, copia o link. O link só abre o mesmo conteúdo neste protótipo, pois não há servidor.
 
 `services/` expõe funções assíncronas (com um pequeno atraso simulado). As telas não sabem onde os dados ficam: trocar por um backend muda o conteúdo dos serviços, não as telas. Consultas passam pelo TanStack Query (cache, carregando e erro). Imagens ficam no IndexedDB (`services/imageStore.js`).
 
@@ -87,9 +98,9 @@ Regras verificadas pelo lint:
 ## Roadmap
 
 1. Fundação
-2. Autenticação e perfis (esta etapa)
+2. Autenticação e perfis
 3. Comunidade
-4. Feed estadual
+4. Feed estadual (esta etapa)
 5. Mobilidade
 6. Administração
 7. Refinamento

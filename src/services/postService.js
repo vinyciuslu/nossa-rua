@@ -9,6 +9,7 @@ import { createId } from '../utils/id.js'
 import { clock } from './clock.js'
 import { deleteImages, saveImage } from './imageStore.js'
 import { wait } from './latency.js'
+import { seedEpoch } from './seedEpoch.js'
 import { ServiceError } from './ServiceError.js'
 import { storage } from './storage.js'
 
@@ -19,18 +20,8 @@ import { storage } from './storage.js'
  * a Etapa 3B acrescenta as publicações criadas pela pessoa no mesmo lugar.
  */
 
-const EPOCH_KEY = 'seed-epoch'
 const SUPPORTS_KEY = 'supports' // { [postId]: [accountId, ...] }
 const POSTS_KEY = 'posts' // publicações criadas pelas pessoas (as do seed ficam no código)
-
-/** Momento em que este aparelho abriu o app pela primeira vez: âncora das datas do seed. */
-function seedEpoch() {
-  const saved = storage.read(EPOCH_KEY)
-  if (typeof saved === 'number') return saved
-  const now = Date.now()
-  storage.write(EPOCH_KEY, now)
-  return now
-}
 
 let seedCache = { epoch: null, posts: [] }
 function seedPosts() {

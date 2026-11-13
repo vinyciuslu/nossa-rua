@@ -13,6 +13,7 @@ export const ACCOUNT_TYPES = {
 const PERMISSIONS = {
   report: ['cpf'],
   support: ['cpf'],
+  save_event: ['cpf', 'cnpj'],
   publish_commercial: ['cnpj'],
   access_admin: ['admin'],
 }

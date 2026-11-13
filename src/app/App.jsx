@@ -23,6 +23,7 @@ import { AccessibilityPage } from '../features/profile/AccessibilityPage.jsx'
 import { FollowedPlacesPage } from '../features/profile/FollowedPlacesPage.jsx'
 import { ProfilePage } from '../features/profile/ProfilePage.jsx'
 import { SettingsPage } from '../features/profile/SettingsPage.jsx'
+import { StateDetailPage } from '../features/state/StateDetailPage.jsx'
 import { StateFeedPage } from '../features/state/StateFeedPage.jsx'
 import {
   AdminGuestOnly,
@@ -66,6 +67,7 @@ export function AppRoutes() {
         <Route path="inicio" element={<CommunityFeedPage />} />
         <Route path="publicacao/:id" element={<PostDetailPage />} />
         <Route path="estado" element={<StateFeedPage />} />
+        <Route path="estado/:id" element={<StateDetailPage />} />
         <Route path="mapa" element={<MapPage />} />
         <Route path="acessibilidade" element={<AccessibilityPage />} />
         <Route element={<GuestOnly />}>
