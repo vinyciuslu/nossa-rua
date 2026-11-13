@@ -20,7 +20,8 @@ export function useSupport() {
 
   const mutation = useMutation({
     mutationFn: toggleSupport,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['posts'] }),
+    // apoiar muda o número em várias telas (feed, detalhe, semelhantes): atualiza tudo
+    onSuccess: () => queryClient.invalidateQueries(),
     onError: (error) => toast.show(error.message, { tone: 'danger' }),
   })
 

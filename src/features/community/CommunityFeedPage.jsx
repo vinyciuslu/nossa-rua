@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
-import { MapPinPlus } from 'lucide-react'
+import { Megaphone, MapPinPlus, Store } from 'lucide-react'
 import { EmptyIllustration } from '../../components/illustrations/Illustrations.jsx'
 import { Page } from '../../components/layout/Page.jsx'
 import { Button } from '../../components/ui/Button.jsx'
@@ -11,6 +11,7 @@ import { PlaceSelect } from '../../components/ui/PlaceSelect.jsx'
 import { EmptyState, ErrorState, Skeleton } from '../../components/ui/States.jsx'
 import { useClock } from '../../context/ClockContext.jsx'
 import { useSession } from '../../context/SessionContext.jsx'
+import { can } from '../../domain/account.js'
 import { FEED_FILTERS, filterFeed, sortFeed } from '../../domain/feed.js'
 import { getNeighborhood } from '../../domain/places.js'
 import { listPosts } from '../../services/postService.js'
@@ -76,6 +77,24 @@ export function CommunityFeedPage() {
           ocorrências nem órgãos reais.
         </p>
       </Notice>
+
+      {(!account || can(account, 'report')) && (
+        <Button
+          icon={Megaphone}
+          onClick={() =>
+            navigate(account ? '/relatar' : '/entrar', {
+              state: account ? undefined : { from: { pathname: '/relatar' } },
+            })
+          }
+        >
+          Relatar um problema
+        </Button>
+      )}
+      {can(account, 'publish_commercial') && (
+        <Button icon={Store} onClick={() => navigate('/anunciar')}>
+          Criar anúncio
+        </Button>
+      )}
 
       {!account && (
         <section aria-labelledby="visitor-place" className="flex flex-col gap-3">
@@ -162,6 +181,7 @@ export function CommunityFeedPage() {
               <PostListItem
                 post={post}
                 now={now}
+                accountId={accountId}
                 supportPending={support.pendingId === post.id}
                 onToggleSupport={() => support.toggle(post)}
                 onOpen={() => navigate(`/publicacao/${post.id}`)}

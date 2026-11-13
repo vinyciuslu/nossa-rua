@@ -14,6 +14,8 @@ import { AdminLoginPage } from '../features/admin/AdminLoginPage.jsx'
 import { LoginPage } from '../features/auth/LoginPage.jsx'
 import { SignupPage } from '../features/auth/SignupPage.jsx'
 import { DesignSystemPage } from '../features/dev/DesignSystemPage.jsx'
+import { CommercialFormPage } from '../features/community/CommercialFormPage.jsx'
+import { ReportFormPage } from '../features/community/ReportFormPage.jsx'
 import { PostDetailPage } from '../features/community/PostDetailPage.jsx'
 import { CommunityFeedPage } from '../features/community/CommunityFeedPage.jsx'
 import { MapPage } from '../features/map/MapPage.jsx'
@@ -69,6 +71,10 @@ export function AppRoutes() {
         <Route element={<GuestOnly />}>
           <Route path="entrar" element={<LoginPage />} />
           <Route path="cadastro" element={<SignupPage />} />
+        </Route>
+        <Route element={<RequireResident />}>
+          <Route path="relatar" element={<ReportFormPage />} />
+          <Route path="anunciar" element={<CommercialFormPage />} />
         </Route>
         <Route path="perfil" element={<RequireResident />}>
           <Route index element={<ProfilePage />} />

@@ -3,6 +3,7 @@ import { getNeighborhood } from '../domain/places.js'
 import { DEMO_ACCOUNTS, DEMO_ADMIN_PASSWORD } from '../config/demoAccounts.js'
 import { createId } from '../utils/id.js'
 import { wait } from './latency.js'
+import { deleteAccountContent } from './postService.js'
 import { ServiceError } from './ServiceError.js'
 import { storage } from './storage.js'
 
@@ -186,6 +187,7 @@ export async function updateAccount(id, patch) {
 
 export async function deleteAccount(id) {
   await wait()
+  await deleteAccountContent(id) // relatos, anúncios, fotos e apoios da conta
   saveAccounts(readAccounts().filter((a) => a.id !== id))
   const session = storage.read(SESSION_KEY)
   if (session?.accountId === id) storage.remove(SESSION_KEY)

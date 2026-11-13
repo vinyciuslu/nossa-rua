@@ -59,6 +59,7 @@ export function PostDetailPage() {
             post={post}
             now={now}
             detail
+            accountId={accountId}
             supportPending={support.pendingId === post.id}
             onToggleSupport={() => support.toggle(post)}
           />

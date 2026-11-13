@@ -1,4 +1,5 @@
 import { CategoryIllustration } from '../../components/illustrations/Illustrations.jsx'
+import { PostImage } from './PostImage.jsx'
 import { PostCard } from '../../components/ui/PostCard.jsx'
 import { formatRelative } from '../../domain/relativeTime.js'
 import { getCategory } from '../../domain/reportCategories.js'
@@ -8,12 +9,14 @@ import { formatPlace } from '../../domain/places.js'
 export function PostListItem({
   post,
   now,
+  accountId,
   onOpen,
   onToggleSupport,
   supportPending,
   detail,
 }) {
   const isReport = post.type === 'report'
+  const hasPhoto = isReport && Boolean(post.imageId)
   return (
     <PostCard
       type={post.type}
@@ -25,11 +28,14 @@ export function PostListItem({
       detail={detail}
       onOpen={onOpen}
       image={
-        isReport ? (
+        hasPhoto ? (
+          <PostImage post={post} />
+        ) : isReport ? (
           <CategoryIllustration category={getCategory(post.category).illustration} />
         ) : undefined
       }
-      imageKind="illustration"
+      imageKind={hasPhoto ? 'photo' : 'illustration'}
+      ownPost={Boolean(accountId) && post.authorId === accountId}
       status={post.status}
       supports={post.supports}
       supported={post.supported}

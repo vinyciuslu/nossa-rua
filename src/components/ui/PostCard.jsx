@@ -49,6 +49,7 @@ export function PostCard({
   supported = false,
   onToggleSupport,
   supportPending = false,
+  ownPost = false, // relato do próprio morador: ele não se apoia
   onOpen,
   detail = false, // na tela de detalhe: texto completo, título como h1, sem botões de abrir
   // aviso
@@ -128,15 +129,19 @@ export function PostCard({
                   Acompanhar
                 </Button>
               )}
-              <Button
-                variant={supported ? 'primary' : 'secondary'}
-                icon={HandHeart}
-                aria-pressed={supported}
-                disabled={supportPending}
-                onClick={onToggleSupport}
-              >
-                {supported ? 'Apoiado' : 'Apoiar'} · {supports}
-              </Button>
+              {ownPost ? (
+                <Badge tone="info">Seu relato · {supports} apoios</Badge>
+              ) : (
+                <Button
+                  variant={supported ? 'primary' : 'secondary'}
+                  icon={HandHeart}
+                  aria-pressed={supported}
+                  disabled={supportPending}
+                  onClick={onToggleSupport}
+                >
+                  {supported ? 'Apoiado' : 'Apoiar'} · {supports}
+                </Button>
+              )}
             </div>
           </div>
         )}

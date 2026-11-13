@@ -70,9 +70,13 @@ Regras verificadas pelo lint:
 - Todo conteúdo do feed é fictício e genérico (sem ruas, empresas ou ocorrências reais), gerado por bairro com semente fixa (`src/data/seedPosts.js`): mesmo bairro, mesmas publicações.
 - O ciclo de status dos relatos é **simulado** a partir do id do relato (`domain/statusSimulation.js`) e revelado com o passar do tempo. Cada etapa gerada traz o selo "Atualização simulada", e algumas terminam sem resolução ou pulam etapas, para o acompanhamento ser honesto.
 - O **relógio de demonstração** (Configurações) adianta o tempo só neste aparelho, para ver o ciclo andar sem esperar dias.
-- Apoios ficam em `localStorage`. Só contas de morador apoiam relatos.
+- Apoios ficam em `localStorage`. Só contas de morador apoiam relatos, e ninguém apoia o próprio relato.
+- **Fotos** ficam no IndexedDB (o `localStorage` não comporta arquivos). Antes de salvar, a foto é redesenhada em um canvas e gravada como JPEG de no máximo 1280 px: isso reduz o tamanho, corrige a rotação da câmera e **remove os metadados, inclusive o GPS**. A foto só é obrigatória onde ajuda a comprovar o problema (buraco, lixo, árvore, calçada).
+- **Relatos parecidos** (`domain/similarity.js`): ao escrever, a pessoa vê relatos abertos, da mesma categoria e bairro, dos últimos 30 dias, que repetem pelo menos 2 das suas palavras (e metade delas). Regra simples e explicável, sem IA; serve para apoiar em vez de duplicar.
+- **Anúncios**: no máximo 2 a cada 7 dias por conta e só em bairros do município do comércio (`domain/commercialLimits.js`).
+- Excluir a conta apaga também os relatos, anúncios, fotos e apoios dela.
 
-`services/` expõe funções assíncronas (com um pequeno atraso simulado). As telas não sabem onde os dados ficam: trocar por um backend muda o conteúdo dos serviços, não as telas. Consultas passam pelo TanStack Query (cache, carregando e erro). Ainda **não existe**, por falta de necessidade concreta, o IndexedDB para imagens: entra na Etapa 3B, com a publicação de relatos com foto.
+`services/` expõe funções assíncronas (com um pequeno atraso simulado). As telas não sabem onde os dados ficam: trocar por um backend muda o conteúdo dos serviços, não as telas. Consultas passam pelo TanStack Query (cache, carregando e erro). Imagens ficam no IndexedDB (`services/imageStore.js`).
 
 ## Design system
 
