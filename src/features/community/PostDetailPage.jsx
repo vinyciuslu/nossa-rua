@@ -87,8 +87,9 @@ export function PostDetailPage() {
           {post.type === 'notice' && (
             <Notice tone="info">
               <p>
-                Aviso da moderação da plataforma (simulado). Só administradores publicam
-                avisos.
+                {post.simulated
+                  ? 'Aviso da moderação da plataforma (simulado). Só administradores publicam avisos.'
+                  : 'Aviso publicado pela administração de demonstração deste app. Não é um comunicado de órgão público.'}
               </p>
             </Notice>
           )}

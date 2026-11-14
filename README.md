@@ -15,7 +15,7 @@ npm run format     # prettier
 npm run build      # build de produção
 ```
 
-Rotas disponíveis (até a Etapa 5):
+Rotas disponíveis (até a Etapa 6):
 
 | Rota                         | O que é                                                            |
 | ---------------------------- | ------------------------------------------------------------------ |
@@ -28,7 +28,10 @@ Rotas disponíveis (até a Etapa 5):
 | `/perfil`                    | Perfil e "como você aparece" (exige conta de morador/comércio)     |
 | `/perfil/bairros`            | Bairros acompanhados, com rótulos Casa, Trabalho, Faculdade, Outro |
 | `/perfil/configuracoes`      | Acessibilidade, privacidade (simulada), baixar e excluir dados     |
-| `/admin/login`, `/admin`     | Acesso administrativo separado; o painel chega na Etapa 6          |
+| `/admin/login`, `/admin`     | Acesso administrativo separado e visão geral do painel             |
+| `/admin/ocorrencias[/:id]`   | Fila priorizada, filtros e atualização de status (administração)   |
+| `/admin/avisos`              | Avisos oficiais por município ou bairro (administração)            |
+| `/admin/parametros`          | Limites do trânsito (administração)                                |
 | `/dev/design-system`         | Guia de estilo vivo, fora da moldura (revisão de identidade)       |
 
 ### Contas de demonstração
@@ -98,6 +101,19 @@ Regras verificadas pelo lint:
 
 `services/` expõe funções assíncronas (com um pequeno atraso simulado). As telas não sabem onde os dados ficam: trocar por um backend muda o conteúdo dos serviços, não as telas. Consultas passam pelo TanStack Query (cache, carregando e erro). Imagens ficam no IndexedDB (`services/imageStore.js`).
 
+### Administração (Etapa 6)
+
+Painel em página larga, sem a moldura de smartphone, só para a conta de administração (`/admin/login`). Tudo continua no navegador: as ações do painel alteram o que os moradores **deste navegador** veem, mas não acionam nenhum órgão público.
+
+- **Fila priorizada** (`domain/priority.js`): o **nível de urgência vem da categoria** do relato (alta 90, média 60, baixa 30) e **sempre vem primeiro**. Dentro do nível, desempatam a espera (em relação a um prazo de referência de 24 h, 72 h ou 7 dias, valores fictícios) e o apoio da comunidade (20 apoios = máximo). Os dois juntos somam no máximo **+15 pontos**; como os níveis distam 30, um relato menos grave nunca passa à frente de um mais grave. A tela de detalhe mostra a conta inteira, sem caixa-preta.
+- **Atualização de status** (`domain/reportStatus.js`, `services/adminService.js`): só para frente (Recebida → Em análise → Encaminhamento registrado → Em andamento → Resolvida; "Não procedente" a qualquer momento; etapas puladas aparecem como "não registradas"). "Encaminhamento registrado" e "Não procedente" exigem nota pública (10 a 280 caracteres). Relato encerrado não é reaberto e a espera deixa de contar.
+- **Histórico transparente** (`domain/reportTimeline.js`): depois da primeira ação da administração, a simulação automática daquele relato **para**; ficam só os eventos simulados anteriores (marcados "Simulado") e os registrados à mão (marcados como "administração de demonstração", sem selo de simulado). O morador vê tudo na linha do tempo.
+- **Avisos oficiais**: nível, título e descrição para um município inteiro ou um bairro. Aparecem na comunidade com a origem "moderação". A administração só retira os avisos que ela mesma criou (os do seed são fixos).
+- **Parâmetros**: limites do trânsito (padrão 75% e 40%), validados na tela e no serviço, com "Restaurar padrão". O mapa passa a usar os novos valores.
+- **Segurança**: nenhuma de verdade. Login, permissões e dados estão no navegador; o `requireAdmin` do serviço existe para manter o contrato que um backend teria de cumprir.
+
+Limites conhecidos: urgência só pela categoria (sem ajuste manual); prazos de referência fictícios; testado em Chrome com tela larga, 390 px e alto contraste, sem leitor de tela real.
+
 ## Design system
 
 - Tokens semânticos em `src/index.css` (cores por modo: padrão, vermelho-verde, azul-amarelo, alto contraste; escala de ícones e áreas de toque).
@@ -110,6 +126,6 @@ Regras verificadas pelo lint:
 2. Autenticação e perfis
 3. Comunidade
 4. Feed estadual
-5. Mobilidade (esta etapa)
-6. Administração
+5. Mobilidade
+6. Administração (esta etapa)
 7. Refinamento

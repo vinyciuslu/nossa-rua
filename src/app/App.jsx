@@ -11,6 +11,10 @@ import { ToastProvider } from '../components/ui/Toast.jsx'
 import { AdminHomePage } from '../features/admin/AdminHomePage.jsx'
 import { AdminLayout } from '../features/admin/AdminLayout.jsx'
 import { AdminLoginPage } from '../features/admin/AdminLoginPage.jsx'
+import { NoticesPage } from '../features/admin/NoticesPage.jsx'
+import { ReportDetailPage } from '../features/admin/ReportDetailPage.jsx'
+import { ReportsQueuePage } from '../features/admin/ReportsQueuePage.jsx'
+import { AdminSettingsPage } from '../features/admin/AdminSettingsPage.jsx'
 import { LoginPage } from '../features/auth/LoginPage.jsx'
 import { SignupPage } from '../features/auth/SignupPage.jsx'
 import { DesignSystemPage } from '../features/dev/DesignSystemPage.jsx'
@@ -59,6 +63,10 @@ export function AppRoutes() {
       <Route path="/admin" element={<RequireAdmin />}>
         <Route element={<AdminLayout />}>
           <Route index element={<AdminHomePage />} />
+          <Route path="ocorrencias" element={<ReportsQueuePage />} />
+          <Route path="ocorrencias/:id" element={<ReportDetailPage />} />
+          <Route path="avisos" element={<NoticesPage />} />
+          <Route path="parametros" element={<AdminSettingsPage />} />
         </Route>
       </Route>
 

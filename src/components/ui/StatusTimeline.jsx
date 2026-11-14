@@ -11,6 +11,7 @@ import { SimulatedBadge } from './SimulatedBadge.jsx'
 const ACTORS = {
   author: 'Publicado pelo morador',
   moderation: 'Atualização da moderação da plataforma',
+  admin: 'Atualização da administração de demonstração',
 }
 
 /**
@@ -23,7 +24,7 @@ const ACTORS = {
  *  4. Etapas puladas aparecem como "Não registrada", e não somem.
  *  5. Um aviso fixo lembra que nada aqui é ação de órgão público.
  *
- * `events`: [{ status, at (ISO), by: 'author' | 'moderation', note?, simulated? }]
+ * `events`: [{ status, at (ISO), by: 'author' | 'moderation' | 'admin', note?, simulated? }]
  * em ordem cronológica. O status atual é o do último evento.
  */
 export function StatusTimeline({ events }) {
@@ -105,7 +106,8 @@ export function StatusTimeline({ events }) {
       </ol>
       <p className="mt-5 rounded-control bg-primary-soft p-3 text-sm text-primary-ink">
         Atualizações marcadas como <strong>simuladas</strong> fazem parte da demonstração
-        do app e não indicam ação de nenhum órgão público. A moderação da plataforma não
+        do app e não indicam ação de nenhum órgão público. As da administração de
+        demonstração são registradas à mão neste app, também sem valor oficial. Nada aqui
         substitui os canais oficiais de atendimento.
       </p>
     </div>

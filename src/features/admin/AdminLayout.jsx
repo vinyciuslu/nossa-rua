@@ -1,8 +1,15 @@
-import { Outlet, useNavigate } from 'react-router-dom'
+import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { LogOut } from 'lucide-react'
 import { Logo } from '../../components/layout/Logo.jsx'
 import { Button } from '../../components/ui/Button.jsx'
 import { useSession } from '../../context/SessionContext.jsx'
+
+const SECTIONS = [
+  { to: '/admin', label: 'Visão geral', end: true },
+  { to: '/admin/ocorrencias', label: 'Ocorrências' },
+  { to: '/admin/avisos', label: 'Avisos' },
+  { to: '/admin/parametros', label: 'Parâmetros' },
+]
 
 /**
  * Moldura do painel administrativo: página comum, em tela larga e sem a moldura
@@ -34,6 +41,27 @@ export function AdminLayout() {
             </Button>
           </div>
         </div>
+        <nav aria-label="Seções da administração" className="mx-auto max-w-6xl px-4">
+          <ul className="flex flex-wrap gap-1">
+            {SECTIONS.map(({ to, label, end }) => (
+              <li key={to}>
+                <NavLink
+                  to={to}
+                  end={end}
+                  className={({ isActive }) =>
+                    `inline-flex min-h-(--tap-min) items-center border-b-4 px-3 font-bold ${
+                      isActive
+                        ? 'border-primary text-primary'
+                        : 'border-transparent text-ink-muted hover:text-ink'
+                    }`
+                  }
+                >
+                  {label}
+                </NavLink>
+              </li>
+            ))}
+          </ul>
+        </nav>
       </header>
       <main className="mx-auto max-w-6xl px-4 py-8">
         <Outlet />

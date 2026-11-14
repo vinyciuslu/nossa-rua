@@ -1,5 +1,5 @@
-import { CategoryIllustration } from '../../components/illustrations/Illustrations.jsx'
-import { Skeleton } from '../../components/ui/States.jsx'
+import { CategoryIllustration } from '../illustrations/Illustrations.jsx'
+import { Skeleton } from '../ui/States.jsx'
 import { getCategory } from '../../domain/reportCategories.js'
 import { useImageUrl } from './useImageUrl.js'
 
