@@ -15,14 +15,14 @@ npm run format     # prettier
 npm run build      # build de produção
 ```
 
-Rotas disponíveis (até a Etapa 4):
+Rotas disponíveis (até a Etapa 5):
 
 | Rota                         | O que é                                                            |
 | ---------------------------- | ------------------------------------------------------------------ |
 | `/inicio`, `/publicacao/:id` | Feed da comunidade e detalhe (relatos, avisos, comércio)           |
 | `/relatar`, `/anunciar`      | Publicar relato (morador) ou anúncio (comércio)                    |
 | `/estado`, `/estado/:id`     | Feed estadual: alertas, notícias e eventos (conteúdo fictício)     |
-| `/mapa`                      | Mapa (placeholder, Etapa 5)                                        |
+| `/mapa`                      | Mapa: trânsito (sensores simulados) e ônibus, com listas e mapa    |
 | `/entrar`, `/cadastro`       | Entrada e cadastro simulados de morador (CPF) e comércio (CNPJ)    |
 | `/acessibilidade`            | Modo de cor e tamanho dos ícones, sem precisar entrar              |
 | `/perfil`                    | Perfil e "como você aparece" (exige conta de morador/comércio)     |
@@ -77,6 +77,15 @@ Regras verificadas pelo lint:
 - **Anúncios**: no máximo 2 a cada 7 dias por conta e só em bairros do município do comércio (`domain/commercialLimits.js`).
 - Excluir a conta apaga também os relatos, anúncios, fotos, apoios e eventos salvos dela.
 
+### Mobilidade (Etapa 5)
+
+- **Rede fictícia e esquemática** (`src/data/seedMobility.js`): São Paulo, Campinas e Santos. Os trechos ligam o centro de dois bairros em linha reta e as linhas passam por "pontos" com o nome do bairro. Nada segue rua real nem usa nome de empresa de ônibus, e a tela avisa isso.
+- **Trânsito** (`domain/traffic.js`): cada trecho tem um sensor simulado. A leitura é função pura do horário de São Paulo (picos às 8h e às 18h, fim de semana mais leve) mais ruído com semente, uma vez por minuto; por isso o relógio de demonstração faz o trânsito andar. Classificação pela velocidade como % da normal: **livre a partir de 75%, intenso abaixo de 40%**, moderado entre os dois. Os limites são parâmetros (`classifyTraffic`, `getMobilitySnapshot({ thresholds })`) para a administração ajustar na Etapa 6. Cerca de 5% do tempo o sensor fica "sem leitura" (30 min) e a tela diz isso em vez de inventar um número.
+- **Ônibus** (`domain/buses.js`): linhas circulares, operando das 5h às 23h30. O progresso da linha é a soma, de 5 em 5 minutos, da velocidade de cada instante, que depende do trânsito dos trechos dela; assim os ônibus andam de forma contínua e desaceleram nos picos. A previsão de chegada supõe que o trânsito de agora continua.
+- **Atualização**: a tela consulta o serviço a cada 15 s (como faria com um backend) e o mapa só redesenha as camadas, sem desfazer o zoom da pessoa.
+- **Mapa**: Leaflet + OpenStreetMap, carregado sob demanda (pacote separado de ~150 kB). Os tiles do OpenStreetMap servem para demonstração; um produto real precisa de um provedor de tiles contratado. O **Google Maps não foi implementado**: não dá para testá-lo sem chave e sem rede neste ambiente.
+- **Acessibilidade**: as listas (Trânsito e Ônibus) trazem tudo o que o mapa mostra e são a base; o mapa é complementar. O nível de trânsito nunca depende só de cor: o traço muda de padrão (contínuo, tracejado, pontilhado grosso) e há legenda. Marcadores não entram na ordem do Tab. Em tela de toque, um dedo rola a página e dois movem o mapa. Se os tiles não carregarem, a tela avisa e continua útil.
+
 ### Feed estadual (Etapa 4)
 
 - **Tudo é fictício, inclusive as instituições.** As fontes ("Central Fictícia de Alertas", "Rede Cultural Fictícia"...) foram inventadas e carregam o selo "Instituição fictícia"; o selo "Fonte institucional verificada" não é usado, porque exigiria integração real. Nenhum alerta deve ser seguido de verdade (`src/data/seedState.js`).
@@ -100,7 +109,7 @@ Regras verificadas pelo lint:
 1. Fundação
 2. Autenticação e perfis
 3. Comunidade
-4. Feed estadual (esta etapa)
-5. Mobilidade
+4. Feed estadual
+5. Mobilidade (esta etapa)
 6. Administração
 7. Refinamento

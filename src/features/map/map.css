@@ -1,0 +1,57 @@
+/* Cores do mapa: usam os tokens do app, que mudam com o modo de cor. */
+.nr-line-free {
+  stroke: var(--ok);
+}
+.nr-line-moderate {
+  stroke: var(--warn);
+}
+.nr-line-heavy {
+  stroke: var(--danger);
+}
+.nr-line-unknown {
+  stroke: var(--ink-muted);
+}
+.nr-halo {
+  stroke: var(--ink);
+  stroke-opacity: 0.35;
+}
+.nr-route {
+  stroke: var(--ink-muted);
+  stroke-opacity: 0.7;
+}
+.nr-route-selected {
+  stroke: var(--primary);
+}
+.nr-stop {
+  stroke: var(--primary);
+  fill: var(--surface);
+  fill-opacity: 1;
+}
+
+.nr-map {
+  background: var(--surface-warm);
+  isolation: isolate; /* mantém os z-index internos do Leaflet dentro do mapa */
+}
+
+.nr-bus {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 34px;
+  height: 24px;
+  padding: 0 6px;
+  border: 2px solid var(--surface);
+  border-radius: 8px;
+  background: var(--primary);
+  color: var(--primary-ink);
+  font: 700 12px/1 var(--font-body, system-ui);
+  white-space: nowrap;
+}
+
+/* Botões de zoom do Leaflet no tamanho de toque do app. */
+.nr-map .leaflet-control-zoom a {
+  width: var(--tap-min);
+  height: var(--tap-min);
+  line-height: var(--tap-min);
+  font-size: 22px;
+}

@@ -35,7 +35,7 @@ const segmentCards = () => screen.findAllByRole('article')
 describe('Mapa: trânsito', () => {
   it('avisa que os dados são simulados e esquemáticos', async () => {
     renderAt('/mapa')
-    expect(await screen.findByText('Dados simulados e esquemáticos')).toBeInTheDocument()
+    expect(await screen.findByText(/Dados simulados e esquemáticos/)).toBeInTheDocument()
     expect(screen.getByText(/não seguem ruas reais/)).toBeInTheDocument()
   })
 

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { Suspense, lazy, useState } from 'react'
 import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { Page } from '../../components/layout/Page.jsx'
 import { Chip } from '../../components/ui/Chip.jsx'
@@ -11,7 +11,11 @@ import { MOBILITY_CITIES } from '../../data/seedMobility.js'
 import { getMobilitySnapshot } from '../../services/mobilityService.js'
 import { formatClock } from '../../utils/format.js'
 import { BusPanel } from './BusPanel.jsx'
+import { MapLegend } from './MapLegend.jsx'
 import { TrafficPanel } from './TrafficPanel.jsx'
+
+// O Leaflet só é baixado quando a aba Mapa é aberta: o resto do app não paga por ele.
+const MapView = lazy(() => import('./MapView.jsx'))
 
 const MODES = [
   { id: 'traffic', label: 'Trânsito' },
@@ -37,6 +41,7 @@ export function MapPage() {
   const [mode, setMode] = useState('traffic')
   const [selectedLineId, setSelectedLineId] = useState(null)
   const [selectedSegmentId, setSelectedSegmentId] = useState(null)
+  const [tilesFailed, setTilesFailed] = useState(false)
 
   const query = useQuery({
     queryKey: ['mobility', cityId, { offsetMs }],
@@ -57,11 +62,10 @@ export function MapPage() {
       title="Mapa"
       description="Trânsito e ônibus do seu município, com dados simulados."
     >
-      <Notice tone="info" title="Dados simulados e esquemáticos">
+      <Notice tone="info">
         <p>
-          Sensores, velocidades, ônibus e horários são inventados. Os trechos ligam
-          bairros em linha reta e não seguem ruas reais: não use para decidir o seu
-          trajeto.
+          <strong>Dados simulados e esquemáticos.</strong> Os trechos ligam bairros em
+          linha reta e não seguem ruas reais: não use para decidir o seu trajeto.
         </p>
       </Notice>
 
@@ -103,10 +107,36 @@ export function MapPage() {
 
       {snapshot && (
         <>
+          <Suspense fallback={<Skeleton className="h-72 w-full" />}>
+            <MapView
+              snapshot={snapshot}
+              mode={mode}
+              selectedLineId={selectedLineId}
+              selectedSegmentId={selectedSegmentId}
+              onSelectSegment={setSelectedSegmentId}
+              onTilesFailed={() => setTilesFailed(true)}
+            />
+          </Suspense>
           <p className="flex flex-wrap items-center gap-2 text-sm text-ink-muted">
             <SimulatedBadge />
             Atualizado às {formatClock(snapshot.at)} · {snapshot.cityName}
           </p>
+          {tilesFailed && (
+            <Notice tone="warn" title="O mapa-base não carregou">
+              <p>
+                Ele depende de internet e do OpenStreetMap. Os trechos e as linhas
+                continuam desenhados e as listas abaixo têm todas as informações.
+              </p>
+            </Notice>
+          )}
+          {mode === 'traffic' ? (
+            <MapLegend />
+          ) : (
+            <p className="text-sm text-ink-muted">
+              Quadrados numerados são ônibus; ao abrir uma linha, os círculos são os
+              pontos de parada.
+            </p>
+          )}
 
           {mode === 'traffic' ? (
             <TrafficPanel
