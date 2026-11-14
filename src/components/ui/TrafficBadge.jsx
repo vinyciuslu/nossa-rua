@@ -1,14 +1,16 @@
-import { CircleCheck, OctagonAlert, TriangleAlert } from 'lucide-react'
+import { CircleCheck, OctagonAlert, TriangleAlert, WifiOff } from 'lucide-react'
 import { Badge } from './Badge.jsx'
 
 /**
  * Nível de trânsito. Cor + ÍCONE + RÓTULO, sempre juntos.
- * (A classificação em si, a partir da velocidade, chega na Etapa 5.)
+ * A classificação, a partir da velocidade, está em `domain/traffic.js`. "Sem leitura"
+ * é o sensor sem sinal: o app não inventa um nível nesse caso.
  */
 const LEVELS = {
   free: { label: 'Trânsito livre', icon: CircleCheck, tone: 'ok' },
   moderate: { label: 'Trânsito moderado', icon: TriangleAlert, tone: 'warn' },
   heavy: { label: 'Congestionamento intenso', icon: OctagonAlert, tone: 'danger' },
+  unknown: { label: 'Sem leitura do sensor', icon: WifiOff, tone: 'neutral' },
 }
 
 export function TrafficBadge({ level, className = '' }) {

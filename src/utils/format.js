@@ -35,3 +35,14 @@ export function formatEventWhen(startsAt, endsAt) {
   }
   return `${first} até ${eventDay.format(end)} · ${eventHour.format(end)}`
 }
+
+const clockTime = new Intl.DateTimeFormat('pt-BR', {
+  hour: '2-digit',
+  minute: '2-digit',
+  timeZone: 'America/Sao_Paulo',
+})
+
+/** Só a hora, no fuso de São Paulo, ex.: "14:32". */
+export function formatClock(iso) {
+  return clockTime.format(new Date(iso))
+}
