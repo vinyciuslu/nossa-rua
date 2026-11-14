@@ -59,3 +59,20 @@ export function isClosedStatus(id) {
 export function statusStep(id) {
   return REPORT_STATUSES.findIndex((s) => s.id === id)
 }
+
+/**
+ * Para onde a administração pode levar um relato. Só se avança: etapas seguintes
+ * do ciclo (inclusive pulando as do meio) ou "Não procedente". Relato encerrado
+ * não volta a abrir.
+ */
+export function nextStatusOptions(currentId) {
+  if (isClosedStatus(currentId)) return []
+  const step = statusStep(currentId)
+  return [...REPORT_STATUSES.filter((_, index) => index > step), NOT_APPLICABLE_STATUS]
+}
+
+/** Etapas em que a administração precisa justificar publicamente (a nota aparece para o morador). */
+export const STATUSES_REQUIRING_NOTE = ['forwarded', 'not_applicable']
+
+export const STATUS_NOTE_MAX = 280
+export const STATUS_NOTE_MIN = 10

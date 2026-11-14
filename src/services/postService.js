@@ -3,7 +3,7 @@ import { checkCommercialLimits } from '../domain/commercialLimits.js'
 import { commercialSchema, reportSchema } from '../domain/postSchemas.js'
 import { getCategory } from '../domain/reportCategories.js'
 import { findSimilarReports } from '../domain/similarity.js'
-import { simulateStatusEvents } from '../domain/statusSimulation.js'
+import { buildTimeline } from '../domain/reportTimeline.js'
 import { generateSeedPosts } from '../data/seedPosts.js'
 import { createId } from '../utils/id.js'
 import { clock } from './clock.js'
@@ -22,6 +22,7 @@ import { storage } from './storage.js'
 
 const SUPPORTS_KEY = 'supports' // { [postId]: [accountId, ...] }
 const POSTS_KEY = 'posts' // publicações criadas pelas pessoas (as do seed ficam no código)
+const ADMIN_EVENTS_KEY = 'admin-events' // { [postId]: [ação da administração, ...] }
 
 let seedCache = { epoch: null, posts: [] }
 function seedPosts() {
@@ -32,6 +33,7 @@ function seedPosts() {
 
 const readSupports = () => storage.read(SUPPORTS_KEY, {})
 const readUserPosts = () => storage.read(POSTS_KEY, [])
+const readAdminEvents = () => storage.read(ADMIN_EVENTS_KEY, {})
 const allPosts = () => [...seedPosts(), ...readUserPosts()]
 
 function saveUserPosts(posts) {
@@ -43,9 +45,14 @@ function saveUserPosts(posts) {
   }
 }
 
+/** Lê de uma vez o que `present` precisa de todos os relatos (apoios e ações da administração). */
+function presentationContext(now) {
+  return { supports: readSupports(), adminEvents: readAdminEvents(), now }
+}
+
 /** Monta o que a tela precisa: estado "de agora" do relato, apoios e quem apoiou. */
-function present(post, accountId, supportsMap, now) {
-  const supporters = supportsMap[post.id] ?? []
+function present(post, accountId, { supports, adminEvents, now }) {
+  const supporters = supports[post.id] ?? []
   const base = {
     ...post,
     // Só o conteúdo do seed é fictício; o que a pessoa publica é dela.
@@ -53,7 +60,7 @@ function present(post, accountId, supportsMap, now) {
   }
   if (post.type !== 'report') return base
 
-  const events = simulateStatusEvents(post, now)
+  const events = buildTimeline(post, adminEvents[post.id] ?? [], now)
   return {
     ...base,
     categoryLabel: getCategory(post.category).label,
@@ -67,23 +74,28 @@ function present(post, accountId, supportsMap, now) {
   }
 }
 
+/** Aviso do município inteiro (sem bairro) vale para quem acompanha qualquer bairro dele. */
+const cityOf = (neighborhoodId) => neighborhoodId.split('/')[0]
+
 /** Publicações dos bairros pedidos (sem ordenar: a ordem é regra do domínio/tela). */
 export async function listPosts({ neighborhoodIds, accountId = null }) {
   await wait()
   const wanted = new Set(neighborhoodIds)
-  const supportsMap = readSupports()
-  const now = clock.now()
+  const wantedCities = new Set(neighborhoodIds.map(cityOf))
+  const ctx = presentationContext(clock.now())
   return allPosts()
-    .filter((p) => wanted.has(p.neighborhoodId))
-    .filter((p) => new Date(p.createdAt) <= now) // relógio voltou: o futuro não aparece
-    .map((p) => present(p, accountId, supportsMap, now))
+    .filter((p) =>
+      p.neighborhoodId ? wanted.has(p.neighborhoodId) : wantedCities.has(p.cityId),
+    )
+    .filter((p) => new Date(p.createdAt) <= ctx.now) // relógio voltou: o futuro não aparece
+    .map((p) => present(p, accountId, ctx))
 }
 
 export async function getPost(id, accountId = null) {
   await wait()
   const post = allPosts().find((p) => p.id === id)
   if (!post) throw new ServiceError('not_found', 'Não encontramos essa publicação.')
-  return present(post, accountId, readSupports(), clock.now())
+  return present(post, accountId, presentationContext(clock.now()))
 }
 
 /** Apoia ou retira o apoio. Devolve o novo estado do relato. */
@@ -108,7 +120,10 @@ export async function toggleSupport({ postId, accountId }) {
       'Não foi possível salvar o apoio neste aparelho.',
     )
   }
-  return present(post, accountId, { ...map, [postId]: next }, clock.now())
+  return present(post, accountId, {
+    ...presentationContext(clock.now()),
+    supports: { ...map, [postId]: next },
+  })
 }
 
 /**
@@ -149,7 +164,7 @@ export async function createReport({
     baseSupports: 0,
   }
   saveUserPosts([...readUserPosts(), post])
-  return present(post, account.id, {}, clock.now())
+  return present(post, account.id, presentationContext(clock.now()))
 }
 
 /** Publica um anúncio. Respeita os limites de frequência e de município. */
@@ -180,7 +195,7 @@ export async function createCommercialPost({
     businessName: account.businessName || 'Comércio local',
   }
   saveUserPosts([...readUserPosts(), post])
-  return present(post, account.id, {}, now)
+  return present(post, account.id, presentationContext(now))
 }
 
 /** Quantos anúncios a conta ainda pode publicar, para a tela avisar antes de enviar. */
@@ -204,12 +219,12 @@ export async function findSimilar({
   accountId = null,
 }) {
   await wait(100)
-  const now = clock.now()
-  const supports = readSupports()
+  const ctx = presentationContext(clock.now())
+  const now = ctx.now
   const candidates = allPosts()
     .filter((p) => p.type === 'report' && p.neighborhoodId === neighborhoodId)
     .filter((p) => new Date(p.createdAt) <= now)
-    .map((p) => present(p, accountId, supports, now))
+    .map((p) => present(p, accountId, ctx))
   return findSimilarReports(
     { neighborhoodId, category, title, description },
     candidates,
@@ -230,4 +245,52 @@ export async function deleteAccountContent(accountId) {
     ]),
   )
   storage.write(SUPPORTS_KEY, cleaned)
+}
+
+// ---------------------------------------------------------------------------
+// Para a administração (adminService cuida de quem pode e de validar)
+// ---------------------------------------------------------------------------
+
+/** Todos os relatos já publicados, de todos os bairros. */
+export function listAllReports() {
+  const ctx = presentationContext(clock.now())
+  return allPosts()
+    .filter((p) => p.type === 'report' && new Date(p.createdAt) <= ctx.now)
+    .map((p) => present(p, null, ctx))
+}
+
+/** Grava uma ação da administração no histórico do relato. */
+export function recordAdminStatus(postId, event) {
+  const map = readAdminEvents()
+  const saved = storage.write(ADMIN_EVENTS_KEY, {
+    ...map,
+    [postId]: [...(map[postId] ?? []), event],
+  })
+  if (!saved) {
+    throw new ServiceError(
+      'storage_unavailable',
+      'Não foi possível salvar a atualização neste aparelho.',
+    )
+  }
+}
+
+/** Avisos criados pela administração (os do seed não entram: são conteúdo fixo). */
+export function listCreatedNotices() {
+  const ctx = presentationContext(clock.now())
+  return readUserPosts()
+    .filter((p) => p.type === 'notice')
+    .map((p) => present(p, null, ctx))
+}
+
+export function addNotice(notice) {
+  saveUserPosts([...readUserPosts(), notice])
+  return present(notice, null, presentationContext(clock.now()))
+}
+
+/** Retira um aviso criado pela administração. Devolve false se não existir. */
+export function removeNotice(noticeId) {
+  const posts = readUserPosts()
+  if (!posts.some((p) => p.id === noticeId && p.type === 'notice')) return false
+  saveUserPosts(posts.filter((p) => p.id !== noticeId))
+  return true
 }

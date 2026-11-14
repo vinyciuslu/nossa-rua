@@ -7,15 +7,11 @@ import {
   withStopFractions,
 } from '../domain/buses.js'
 import { boundsOf, buildPath } from '../domain/geo.js'
-import {
-  DEFAULT_THRESHOLDS,
-  classifyTraffic,
-  sensorReading,
-  trafficRatio,
-} from '../domain/traffic.js'
+import { classifyTraffic, sensorReading, trafficRatio } from '../domain/traffic.js'
 import { clock } from './clock.js'
 import { wait } from './latency.js'
 import { ServiceError } from './ServiceError.js'
+import { getTrafficThresholds } from './settingsService.js'
 
 /**
  * Mobilidade: trânsito (sensores simulados) e ônibus (posições e previsões
@@ -36,11 +32,11 @@ export async function listMobilityCities() {
 /**
  * Situação de um município agora.
  * @param {string} cityId
- * @param {{ thresholds?: { freeFrom: number, heavyBelow: number } }} [options]
+ * @param {{ thresholds?: { freeFrom: number, heavyBelow: number } }} [options]  (padrão: os limites definidos pela administração)
  */
 export async function getMobilitySnapshot(
   cityId,
-  { thresholds = DEFAULT_THRESHOLDS } = {},
+  { thresholds = getTrafficThresholds() } = {},
 ) {
   await wait()
   const city = MOBILITY_CITIES.find((c) => c.id === cityId)
@@ -98,6 +94,7 @@ export async function getMobilitySnapshot(
       ...lines.flatMap((l) => l.path),
     ]),
     at: now.toISOString(),
+    thresholds,
     segments,
     lines,
   }

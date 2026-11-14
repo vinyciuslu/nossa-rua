@@ -24,3 +24,14 @@ export function formatRelative(iso, now) {
 
 export const HOURS = HOUR
 export const DAYS = DAY
+
+/** Duração em horas como texto curto: "3 h", "2 dias", "1 dia e 4 h". Para tempos de espera. */
+export function formatDuration(hours) {
+  const total = Math.max(0, Math.round(hours))
+  if (total < 1) return 'menos de 1 h'
+  if (total < 48) return `${total} h`
+  const days = Math.floor(total / 24)
+  const rest = total % 24
+  const dayText = `${days} ${days === 1 ? 'dia' : 'dias'}`
+  return rest === 0 || days >= 7 ? dayText : `${dayText} e ${rest} h`
+}

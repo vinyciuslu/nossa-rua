@@ -141,6 +141,7 @@ export function MapPage() {
           {mode === 'traffic' ? (
             <TrafficPanel
               segments={snapshot.segments}
+              thresholds={snapshot.thresholds}
               selectedId={selectedSegmentId}
               onSelect={setSelectedSegmentId}
             />
