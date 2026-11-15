@@ -128,6 +128,8 @@ Limites conhecidos: urgência só pela categoria (sem ajuste manual); prazos de 
 - **Robustez:** `ErrorBoundary` global (tela quebrada ou código que não baixa), 404 com título, carregando/erro/vazio em todas as telas com dados, aviso de armazenamento bloqueado.
 - **Verificação:** além dos testes, o axe-core (WCAG 2.1 A/AA e boas práticas) foi rodado em todas as telas nos modos padrão, vermelho-verde e alto contraste, em celular e desktop, com zero violações. É triagem automática: não substitui leitor de tela real nem teste com pessoas.
 
+Documentos de apoio: [`docs/validacao-em-aparelho.md`](docs/validacao-em-aparelho.md) (roteiro para testar em celular e com leitor de tela) e [`docs/migracao-backend.md`](docs/migracao-backend.md) (como trocar a camada de serviços por uma API).
+
 ## Limitações conhecidas
 
 - Sem backend: login, permissões e dados são simulados e vivem no navegador (nenhuma segurança real).
