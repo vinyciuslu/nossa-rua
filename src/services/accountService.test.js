@@ -150,6 +150,12 @@ describe('perfil', () => {
     expect(data.account.email).toBe('ana@exemplo.com')
     expect(data.note).toMatch(/Nenhum CPF\/CNPJ/)
   })
+
+  it('o download traz também publicações, apoios dados e eventos salvos', async () => {
+    const account = await accounts.signUp(resident)
+    const data = await accounts.exportAccountData(account.id)
+    expect(data).toMatchObject({ publications: [], supportsGiven: [], savedEvents: [] })
+  })
 })
 
 describe('armazenamento indisponível', () => {

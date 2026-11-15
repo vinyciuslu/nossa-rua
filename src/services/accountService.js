@@ -3,8 +3,8 @@ import { getNeighborhood } from '../domain/places.js'
 import { DEMO_ACCOUNTS, DEMO_ADMIN_PASSWORD } from '../config/demoAccounts.js'
 import { createId } from '../utils/id.js'
 import { wait } from './latency.js'
-import { deleteAccountContent } from './postService.js'
-import { deleteAccountSavedEvents } from './stateService.js'
+import { deleteAccountContent, exportAccountContent } from './postService.js'
+import { deleteAccountSavedEvents, listSavedEventIds } from './stateService.js'
 import { ServiceError } from './ServiceError.js'
 import { storage } from './storage.js'
 
@@ -204,5 +204,7 @@ export async function exportAccountData(id) {
     exportedAt: new Date().toISOString(),
     note: 'Dados guardados somente neste aparelho (protótipo). Nenhum CPF/CNPJ é armazenado.',
     account,
+    ...exportAccountContent(id),
+    savedEvents: listSavedEventIds(id),
   }
 }

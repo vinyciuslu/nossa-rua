@@ -10,6 +10,7 @@ import {
   getCommercialStatus,
   getPost,
   listPosts,
+  recordAdminStatus,
   toggleSupport,
 } from './postService.js'
 
@@ -200,6 +201,26 @@ describe('createCommercialPost', () => {
   })
 })
 
+describe('download dos dados', () => {
+  it('inclui o que a conta publicou (sem a foto) e a que deu apoio', async () => {
+    const mine = await createReport({ account: resident, ...report() })
+    await createReport({
+      account: { id: 'acc_outra', type: 'cpf', neighborhoodId: PLACE },
+      ...report({ title: 'Relato de outra pessoa' }),
+    })
+    const seedReport = (await listPosts({ neighborhoodIds: [PLACE] })).find(
+      (p) => p.type === 'report' && !p.authorId,
+    )
+    await toggleSupport({ postId: seedReport.id, accountId: resident.id })
+
+    const data = await accounts.exportAccountData(resident.id)
+    expect(data.publications.map((p) => p.id)).toEqual([mine.id])
+    expect(data.publications[0]).toMatchObject({ hasPhoto: true })
+    expect(data.publications[0]).not.toHaveProperty('imageId')
+    expect(data.supportsGiven).toEqual([seedReport.id])
+  })
+})
+
 describe('excluir a conta apaga o que ela publicou', () => {
   it('remove relatos, fotos e apoios', async () => {
     const created = await createReport({ account: resident, ...report() })
@@ -215,5 +236,22 @@ describe('excluir a conta apaga o que ela publicou', () => {
     await expect(getPost(created.id)).rejects.toMatchObject({ code: 'not_found' })
     expect(await getImage(created.imageId)).toBeNull()
     expect((await getPost(seedReport.id, resident.id)).supports).toBe(before)
+  })
+
+  it('remove também as ações da administração sobre os relatos apagados', async () => {
+    const created = await createReport({ account: resident, ...report() })
+    await recordAdminStatus(created.id, {
+      status: 'in_review',
+      at: new Date().toISOString(),
+      by: 'admin',
+      simulated: false,
+    })
+    expect(window.localStorage.getItem('nossa-rua:v1:admin-events')).toContain(created.id)
+
+    await accounts.deleteAccount(resident.id)
+
+    expect(window.localStorage.getItem('nossa-rua:v1:admin-events')).not.toContain(
+      created.id,
+    )
   })
 })

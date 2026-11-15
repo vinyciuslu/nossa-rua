@@ -67,6 +67,10 @@ export function MapPage() {
           <strong>Dados simulados e esquemáticos.</strong> Os trechos ligam bairros em
           linha reta e não seguem ruas reais: não use para decidir o seu trajeto.
         </p>
+        <p>
+          As imagens de fundo do mapa vêm do OpenStreetMap: ao carregá-las, seu navegador
+          informa a eles o seu endereço de IP e a região que você está vendo.
+        </p>
       </Notice>
 
       <div role="group" aria-label="Município" className="flex flex-wrap gap-2">

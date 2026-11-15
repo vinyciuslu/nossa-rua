@@ -15,7 +15,7 @@ npm run format     # prettier
 npm run build      # build de produção
 ```
 
-Rotas disponíveis (até a Etapa 6):
+Rotas disponíveis:
 
 | Rota                         | O que é                                                            |
 | ---------------------------- | ------------------------------------------------------------------ |
@@ -26,6 +26,7 @@ Rotas disponíveis (até a Etapa 6):
 | `/entrar`, `/cadastro`       | Entrada e cadastro simulados de morador (CPF) e comércio (CNPJ)    |
 | `/acessibilidade`            | Modo de cor e tamanho dos ícones, sem precisar entrar              |
 | `/perfil`                    | Perfil e "como você aparece" (exige conta de morador/comércio)     |
+| `/perfil/publicacoes`        | Meus relatos (morador) ou Meus anúncios (comércio)                 |
 | `/perfil/bairros`            | Bairros acompanhados, com rótulos Casa, Trabalho, Faculdade, Outro |
 | `/perfil/configuracoes`      | Acessibilidade, privacidade (simulada), baixar e excluir dados     |
 | `/admin/login`, `/admin`     | Acesso administrativo separado e visão geral do painel             |
@@ -43,7 +44,11 @@ Na tela de entrada há botões para entrar como morador(a) ou comércio local se
 - **CPF/CNPJ:** o número é só validado (dígitos verificadores) no formulário e descartado. Não é gravado, nem em versão codificada (hash). A conta guarda apenas o _tipo_ (`cpf`, `cnpj`, `admin`) e um id interno. O botão "Gerar CPF/CNPJ fictício" evita que alguém digite um documento real.
 - **Senha:** não existe senha de cidadão; a conta é identificada pelo e-mail, que fica só neste aparelho. A senha do admin de demonstração é pública e fixa.
 - **Autor dos relatos:** por padrão aparece como "Morador(a) de {bairro}". Permissões e privacidade são **simuladas**.
-- Dados ficam em `localStorage` (prefixo `nossa-rua:v1:`). Em "Configurações" dá para baixar ou excluir tudo.
+- Dados ficam em `localStorage` (prefixo `nossa-rua:v1:`) e as fotos em IndexedDB, **só neste aparelho**. Em "Configurações" dá para baixar (conta, publicações sem a foto, apoios dados e eventos salvos) ou excluir tudo (conta, publicações, fotos, apoios, eventos salvos e as ações da administração sobre os relatos apagados).
+- Fotos passam por um canvas antes de salvar, o que remove os metadados (EXIF), inclusive a localização GPS.
+- **O que sai do aparelho:** apenas as imagens de fundo do mapa, pedidas ao OpenStreetMap (que recebe o IP e a região vista; a tela do mapa avisa). Fontes e ícones vêm junto com o app; não há analytics, cookies nem outro serviço externo.
+- Quem vê relatos de outras pessoas (inclusive o painel) recebe só o rótulo pseudonimizado do autor; e-mail e nome ficam na conta. O id interno do autor ainda trafega nos dados em memória: com backend, a API precisa omiti-lo.
+- Se o navegador bloquear o armazenamento, o app avisa que nada será lembrado.
 
 ## Moldura de smartphone
 
@@ -114,6 +119,24 @@ Painel em página larga, sem a moldura de smartphone, só para a conta de admini
 
 Limites conhecidos: urgência só pela categoria (sem ajuste manual); prazos de referência fictícios; testado em Chrome com tela larga, 390 px e alto contraste, sem leitor de tela real.
 
+### Acessibilidade e refinamento (Etapa 7)
+
+- **Modos de exibição** (em `/acessibilidade` e Configurações): padrão, vermelho-verde, azul-amarelo e alto contraste; ícones e áreas de toque grandes. Valem para o aparelho, inclusive antes do login.
+- **Toque duplo com narração** (opcional, desligado por padrão; `components/a11y/GuidedTap.jsx`): o primeiro toque num botão ou link o descreve em voz alta (SpeechSynthesis, voz do próprio aparelho, pt-BR) e o destaca; o segundo, no mesmo item, ativa. Campos de texto não são bloqueados. Teclado e leitores de tela passam direto (clique sem `detail`), pois o modo **não substitui VoiceOver nem TalkBack**. Sem narração no navegador, o modo avisa e continua pedindo dois toques.
+- **Foco e títulos:** ao trocar de tela o foco vai para o conteúdo e a rolagem volta ao topo; cada tela tem um `h1` e níveis coerentes; há link "Pular para o conteúdo" no app e no painel.
+- **Desempenho:** telas menos usadas são carregadas sob demanda (`React.lazy`); o pacote inicial ficou em ~430 kB (gzip ~134 kB), e o mapa (Leaflet) só baixa ao abrir o Mapa.
+- **Robustez:** `ErrorBoundary` global (tela quebrada ou código que não baixa), 404 com título, carregando/erro/vazio em todas as telas com dados, aviso de armazenamento bloqueado.
+- **Verificação:** além dos testes, o axe-core (WCAG 2.1 A/AA e boas práticas) foi rodado em todas as telas nos modos padrão, vermelho-verde e alto contraste, em celular e desktop, com zero violações. É triagem automática: não substitui leitor de tela real nem teste com pessoas.
+
+## Limitações conhecidas
+
+- Sem backend: login, permissões e dados são simulados e vivem no navegador (nenhuma segurança real).
+- Não foi testado em aparelho físico nem com VoiceOver/TalkBack; o toque duplo precisa de validação com quem vai usá-lo.
+- Google Maps não foi implementado (não dá para testar sem chave); o mapa usa Leaflet + OpenStreetMap, e as imagens de fundo nunca foram vistas com ruas no ambiente de desenvolvimento (bloqueadas), apenas o aviso de falha.
+- Arquivos `.ics` não foram abertos em um calendário real.
+- Administração: não reabre relatos encerrados; urgência só pela categoria; prazos de referência fictícios; só retira avisos criados por ela.
+- Fora do escopo da v1: central de notificações e PWA.
+
 ## Design system
 
 - Tokens semânticos em `src/index.css` (cores por modo: padrão, vermelho-verde, azul-amarelo, alto contraste; escala de ícones e áreas de toque).
@@ -127,5 +150,5 @@ Limites conhecidos: urgência só pela categoria (sem ajuste manual); prazos de 
 3. Comunidade
 4. Feed estadual
 5. Mobilidade
-6. Administração (esta etapa)
-7. Refinamento
+6. Administração
+7. Refinamento (acessibilidade, desempenho, robustez, privacidade)

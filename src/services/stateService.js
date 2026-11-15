@@ -70,6 +70,11 @@ export async function toggleSavedEvent({ eventId, accountId }) {
   return present(item, accountId, updated)
 }
 
+/** Ids dos eventos salvos pela conta (para o download dos dados). */
+export function listSavedEventIds(accountId) {
+  return readSaved()[accountId] ?? []
+}
+
 /** Remove os eventos salvos da conta (usado ao excluir a conta). */
 export function deleteAccountSavedEvents(accountId) {
   const { [accountId]: _removed, ...rest } = readSaved()

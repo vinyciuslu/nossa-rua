@@ -255,6 +255,27 @@ export async function deleteAccountContent(accountId) {
     ]),
   )
   storage.write(SUPPORTS_KEY, cleaned)
+  // Ações da administração sobre os relatos apagados não têm mais a quem se referir.
+  const events = readAdminEvents()
+  const mineIds = new Set(mine.map((p) => p.id))
+  storage.write(
+    ADMIN_EVENTS_KEY,
+    Object.fromEntries(Object.entries(events).filter(([postId]) => !mineIds.has(postId))),
+  )
+}
+
+/**
+ * O que a conta publicou e a que deu apoio, para o download dos dados.
+ * Fotos não entram no arquivo (ficam no aparelho); só se havia foto.
+ */
+export function exportAccountContent(accountId) {
+  const publications = readUserPosts()
+    .filter((p) => p.authorId === accountId)
+    .map(({ imageId, ...post }) => ({ ...post, hasPhoto: Boolean(imageId) }))
+  const supportsGiven = Object.entries(readSupports())
+    .filter(([, ids]) => ids.includes(accountId))
+    .map(([postId]) => postId)
+  return { publications, supportsGiven }
 }
 
 // ---------------------------------------------------------------------------
