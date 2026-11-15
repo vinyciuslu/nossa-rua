@@ -23,23 +23,26 @@ function readSaved() {
       ? saved.colorMode
       : 'default',
     largeIcons: saved?.largeIcons === true,
+    guidedTap: saved?.guidedTap === true,
   }
 }
 
 export function AccessibilityProvider({ children }) {
-  const [{ colorMode, largeIcons }, setPrefs] = useState(readSaved)
+  const [{ colorMode, largeIcons, guidedTap }, setPrefs] = useState(readSaved)
 
   useEffect(() => {
     const root = document.documentElement
     root.dataset.colorMode = colorMode
     root.dataset.iconSize = largeIcons ? 'large' : 'normal'
-    storage.write(STORAGE_KEY, { colorMode, largeIcons })
-  }, [colorMode, largeIcons])
+    storage.write(STORAGE_KEY, { colorMode, largeIcons, guidedTap })
+  }, [colorMode, largeIcons, guidedTap])
 
   const value = useMemo(
     () => ({
       colorMode,
       largeIcons,
+      guidedTap,
+      setGuidedTap: (next) => setPrefs((p) => ({ ...p, guidedTap: next === true })),
       setColorMode: (mode) => setPrefs((p) => ({ ...p, colorMode: mode })),
       // aceita valor ou função, como o setState
       setLargeIcons: (next) =>
@@ -48,7 +51,7 @@ export function AccessibilityProvider({ children }) {
           largeIcons: typeof next === 'function' ? next(p.largeIcons) : next,
         })),
     }),
-    [colorMode, largeIcons],
+    [colorMode, largeIcons, guidedTap],
   )
 
   return <AccessibilityContext value={value}>{children}</AccessibilityContext>

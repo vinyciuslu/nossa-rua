@@ -22,11 +22,9 @@ export function Header() {
       >
         <Logo />
       </Link>
-      <Link
-        to="/perfil"
-        aria-label={account ? 'Meu perfil' : 'Entrar'}
-        className="inline-flex rounded-full"
-      >
+      <Link to="/perfil" className="inline-flex rounded-full">
+        {/* Texto só para leitores de tela: com aria-label, as iniciais visíveis não fariam parte do nome. */}
+        <span className="sr-only">{account ? 'Meu perfil' : 'Entrar'}</span>
         {account ? (
           <Avatar name={account.name} />
         ) : (

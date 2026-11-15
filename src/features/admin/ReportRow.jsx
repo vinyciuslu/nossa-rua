@@ -8,7 +8,7 @@ import { formatDuration } from '../../domain/relativeTime.js'
 import { UrgencyBadge } from './UrgencyBadge.jsx'
 
 /** Uma ocorrência na fila: pontuação, título (link para o detalhe), selos e números principais. */
-export function ReportRow({ report }) {
+export function ReportRow({ report, headingLevel: Heading = 'h2' }) {
   const { priority } = report
   return (
     <article
@@ -26,14 +26,17 @@ export function ReportRow({ report }) {
       </div>
 
       <div className="flex min-w-0 flex-col gap-2">
-        <h3 id={`row-${report.id}`} className="font-display text-base font-bold text-ink">
+        <Heading
+          id={`row-${report.id}`}
+          className="font-display text-base font-bold text-ink"
+        >
           <Link
             to={`/admin/ocorrencias/${report.id}`}
             className="underline-offset-2 hover:underline"
           >
             {report.title}
           </Link>
-        </h3>
+        </Heading>
         <p className="text-sm text-ink-muted">
           {formatPlace(report.neighborhoodId)} · {report.categoryLabel}
         </p>

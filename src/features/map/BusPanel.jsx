@@ -24,6 +24,7 @@ function Arrivals({ arrivals }) {
 export function BusPanel({ lines, selectedId, onSelect }) {
   return (
     <div className="flex flex-col gap-4">
+      <h2 className="sr-only">Linhas de ônibus</h2>
       <ul className="flex flex-col gap-3">
         {lines.map((line) => {
           const open = selectedId === line.id

@@ -5,11 +5,12 @@ import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { AccessibilityProvider } from '../context/AccessibilityContext.jsx'
 import { ClockProvider } from '../context/ClockContext.jsx'
 import { SessionProvider } from '../context/SessionContext.jsx'
+import { GuidedTap } from '../components/a11y/GuidedTap.jsx'
 import { AppShell } from '../components/layout/AppShell.jsx'
+import { Page } from '../components/layout/Page.jsx'
 import { RouteFallback } from '../components/layout/RouteFallback.jsx'
 import { PhoneFrame } from '../components/layout/PhoneFrame.jsx'
 import { ErrorBoundary } from '../components/ui/ErrorBoundary.jsx'
-import { ErrorState } from '../components/ui/States.jsx'
 import { ToastProvider } from '../components/ui/Toast.jsx'
 import { PostDetailPage } from '../features/community/PostDetailPage.jsx'
 import { CommunityFeedPage } from '../features/community/CommunityFeedPage.jsx'
@@ -140,9 +141,9 @@ export function AppRoutes() {
           <Route
             path="*"
             element={
-              <ErrorState
+              <Page
                 title="Página não encontrada"
-                message="O endereço que você abriu não existe no app. Use a navegação abaixo para voltar."
+                description="O endereço que você abriu não existe no app. Use a navegação abaixo para voltar."
               />
             }
           />
@@ -158,6 +159,7 @@ export function App() {
       <AccessibilityProvider>
         <ClockProvider>
           <SessionProvider>
+            <GuidedTap />
             <ErrorBoundary>
               <BrowserRouter>
                 <AppRoutes />

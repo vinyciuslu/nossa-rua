@@ -34,6 +34,7 @@ export function TrafficPanel({
         {summarize(segments)}.
       </p>
 
+      <h2 className="sr-only">Trechos monitorados</h2>
       <ul className="flex flex-col gap-3">
         {sorted.map((segment) => {
           const { reading } = segment

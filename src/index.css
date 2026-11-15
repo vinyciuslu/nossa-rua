@@ -200,6 +200,12 @@ html[data-icon-size='large'] {
   }
 }
 
+/* Modo de toque duplo: o item que aguarda o segundo toque fica bem destacado. */
+[data-guided-pending='true'] {
+  outline: 4px solid var(--focus);
+  outline-offset: 3px;
+}
+
 /* Respeita a preferência do sistema por movimento reduzido. */
 @media (prefers-reduced-motion: reduce) {
   *,

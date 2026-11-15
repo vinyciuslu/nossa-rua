@@ -174,8 +174,9 @@ export function CommunityFeedPage() {
           description="Não há publicações desse tipo nos bairros escolhidos. Tente outro filtro."
         />
       )}
+      {posts.length > 0 && <h2 className="sr-only">Publicações</h2>}
       {posts.length > 0 && (
-        <ul className="flex flex-col gap-4">
+        <ul aria-label="Publicações" className="flex flex-col gap-4">
           {posts.map((post) => (
             <li key={post.id}>
               <PostListItem

@@ -10,7 +10,7 @@ export function AccessibilityPage() {
       backTo="/entrar"
       backLabel="Voltar"
     >
-      <AccessibilitySettings />
+      <AccessibilitySettings headingLevel="h2" />
     </Page>
   )
 }

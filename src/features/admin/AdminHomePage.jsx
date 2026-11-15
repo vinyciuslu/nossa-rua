@@ -95,7 +95,7 @@ export function AdminHomePage() {
         <ul className="flex flex-col gap-3">
           {top.map((report) => (
             <li key={report.id}>
-              <ReportRow report={report} />
+              <ReportRow report={report} headingLevel="h3" />
             </li>
           ))}
         </ul>

@@ -28,7 +28,13 @@ describe('AccessibilityContext', () => {
     })
     expect(second.result.current.colorMode).toBe('red-green')
     expect(second.result.current.largeIcons).toBe(true)
+    expect(second.result.current.guidedTap).toBe(false) // desligado até a pessoa ligar
+    act(() => second.result.current.setGuidedTap(true))
     second.unmount()
+
+    const again = renderHook(() => useAccessibility(), { wrapper: AccessibilityProvider })
+    expect(again.result.current.guidedTap).toBe(true)
+    again.unmount()
 
     window.localStorage.setItem(
       'nossa-rua:v1:accessibility',

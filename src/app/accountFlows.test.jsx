@@ -35,6 +35,14 @@ async function signInAsDemo(user, label = 'Entrar como morador(a)') {
   await heading('Meu perfil')
 }
 
+describe('página não encontrada', () => {
+  it('tem título de nível 1 e explica o que fazer', async () => {
+    renderAt('/nao-existe')
+    expect(await heading('Página não encontrada')).toBeInTheDocument()
+    expect(screen.getByText(/Use a navegação abaixo/)).toBeInTheDocument()
+  })
+})
+
 describe('guardas de rota', () => {
   it('visitante em /perfil é levado para Entrar', async () => {
     renderAt('/perfil')
@@ -306,8 +314,29 @@ describe('configurações', () => {
       {
         colorMode: 'high-contrast',
         largeIcons: true,
+        guidedTap: false,
       },
     )
+  })
+
+  it('toque duplo com narração: começa desligado, liga e lembra', async () => {
+    const user = userEvent.setup()
+    renderAt('/acessibilidade')
+    const on = await screen.findByRole('button', { name: 'Ligado' })
+    expect(on).toHaveAttribute('aria-pressed', 'false')
+    expect(screen.getByRole('button', { name: 'Desligado' })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    )
+    await user.click(on)
+    expect(on).toHaveAttribute('aria-pressed', 'true')
+    expect(
+      JSON.parse(window.localStorage.getItem('nossa-rua:v1:accessibility')),
+    ).toMatchObject({
+      guidedTap: true,
+    })
+    // este navegador de teste não tem narração: o aviso aparece
+    expect(screen.getByText('Este navegador não tem narração')).toBeInTheDocument()
   })
 
   it('excluir a conta pede confirmação, apaga e volta para Entrar', async () => {
