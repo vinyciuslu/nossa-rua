@@ -3,6 +3,7 @@ import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
 import { BottomSheet } from './BottomSheet.jsx'
+import { ErrorBoundary } from './ErrorBoundary.jsx'
 import { PostCard } from './PostCard.jsx'
 import { SourceBadge } from './SourceBadge.jsx'
 import { StatusTimeline } from './StatusTimeline.jsx'
@@ -241,5 +242,34 @@ describe('Toast', () => {
     )
     await user.click(screen.getByRole('button', { name: 'Mostrar' }))
     expect(screen.getByRole('status')).toHaveTextContent('Apoio registrado')
+  })
+})
+
+describe('ErrorBoundary', () => {
+  function Broken() {
+    throw new Error('quebrou')
+  }
+
+  it('mostra uma mensagem em vez de tela em branco quando uma tela quebra', () => {
+    const spy = vi.spyOn(console, 'error').mockImplementation(() => {})
+    render(
+      <ErrorBoundary>
+        <Broken />
+      </ErrorBoundary>,
+    )
+    expect(screen.getByRole('alert')).toHaveTextContent(
+      'Não foi possível mostrar esta tela',
+    )
+    expect(screen.getByRole('button', { name: 'Recarregar o app' })).toBeInTheDocument()
+    spy.mockRestore()
+  })
+
+  it('não interfere quando nada quebra', () => {
+    render(
+      <ErrorBoundary>
+        <p>tudo certo</p>
+      </ErrorBoundary>,
+    )
+    expect(screen.getByText('tudo certo')).toBeInTheDocument()
   })
 })

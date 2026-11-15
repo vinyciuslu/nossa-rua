@@ -1,6 +1,9 @@
+import { Suspense, useRef } from 'react'
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { LogOut } from 'lucide-react'
 import { Logo } from '../../components/layout/Logo.jsx'
+import { RouteFallback } from '../../components/layout/RouteFallback.jsx'
+import { useRouteFocus } from '../../components/layout/useRouteFocus.js'
 import { Button } from '../../components/ui/Button.jsx'
 import { useSession } from '../../context/SessionContext.jsx'
 
@@ -18,6 +21,8 @@ const SECTIONS = [
 export function AdminLayout() {
   const { account, signOut } = useSession()
   const navigate = useNavigate()
+  const mainRef = useRef(null)
+  useRouteFocus(mainRef)
 
   async function onSignOut() {
     await signOut()
@@ -26,6 +31,12 @@ export function AdminLayout() {
 
   return (
     <div className="min-h-dvh bg-canvas text-ink">
+      <a
+        href="#conteudo"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:rounded-control focus:bg-primary focus:px-4 focus:py-2 focus:font-bold focus:text-on-primary"
+      >
+        Pular para o conteúdo
+      </a>
       <header className="hairline border-x-0 border-t-0 border-line bg-surface">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-4 py-3">
           <div className="flex items-center gap-3">
@@ -63,8 +74,15 @@ export function AdminLayout() {
           </ul>
         </nav>
       </header>
-      <main className="mx-auto max-w-6xl px-4 py-8">
-        <Outlet />
+      <main
+        ref={mainRef}
+        id="conteudo"
+        tabIndex={-1}
+        className="mx-auto max-w-6xl px-4 py-8 outline-none"
+      >
+        <Suspense fallback={<RouteFallback />}>
+          <Outlet />
+        </Suspense>
       </main>
     </div>
   )

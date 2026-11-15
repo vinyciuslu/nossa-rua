@@ -1,7 +1,7 @@
 import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { AccessibilityProvider } from '../../context/AccessibilityContext.jsx'
 import { SessionProvider } from '../../context/SessionContext.jsx'
 import { signInDemo } from '../../services/accountService.js'
@@ -74,5 +74,24 @@ describe('AppShell + navegação', () => {
       'href',
       '#conteudo',
     )
+  })
+})
+
+describe('foco ao trocar de tela', () => {
+  it('não rouba o foco na primeira exibição', () => {
+    renderApp('/inicio')
+    expect(screen.getByRole('main')).not.toHaveFocus()
+  })
+
+  it('leva o foco para o conteúdo e volta a rolagem ao topo ao trocar de tela', async () => {
+    const user = userEvent.setup()
+    renderApp('/inicio')
+    const main = screen.getByRole('main')
+    main.scrollTo = vi.fn()
+    const nav = screen.getByRole('navigation', { name: 'Navegação principal' })
+    await user.click(within(nav).getByRole('link', { name: 'Estado' }))
+    expect(await screen.findByText('Tela Estado')).toBeInTheDocument()
+    expect(main).toHaveFocus()
+    expect(main.scrollTo).toHaveBeenCalledWith({ top: 0 })
   })
 })

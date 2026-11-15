@@ -1,6 +1,9 @@
+import { Suspense, useRef } from 'react'
 import { Outlet } from 'react-router-dom'
 import { BottomNavigation } from './BottomNavigation.jsx'
 import { Header } from './Header.jsx'
+import { RouteFallback } from './RouteFallback.jsx'
+import { useRouteFocus } from './useRouteFocus.js'
 
 /**
  * Estrutura de toda tela do app: cabeçalho, conteúdo rolável e navegação inferior.
@@ -8,6 +11,8 @@ import { Header } from './Header.jsx'
  * visíveis sem precisar de position: fixed.
  */
 export function AppShell() {
+  const mainRef = useRef(null)
+  useRouteFocus(mainRef)
   return (
     <>
       <a
@@ -18,11 +23,14 @@ export function AppShell() {
       </a>
       <Header />
       <main
+        ref={mainRef}
         id="conteudo"
         tabIndex={-1}
-        className="min-h-0 flex-1 overflow-y-auto overscroll-contain"
+        className="min-h-0 flex-1 overflow-y-auto overscroll-contain outline-none"
       >
-        <Outlet />
+        <Suspense fallback={<RouteFallback />}>
+          <Outlet />
+        </Suspense>
       </main>
       <BottomNavigation />
     </>
