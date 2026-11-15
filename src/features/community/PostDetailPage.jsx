@@ -10,7 +10,7 @@ import { APP_NAME } from '../../config/appConfig.js'
 import { useClock } from '../../context/ClockContext.jsx'
 import { useSession } from '../../context/SessionContext.jsx'
 import { getPost } from '../../services/postService.js'
-import { PostListItem } from './PostListItem.jsx'
+import { PostListItem } from '../../components/post/PostListItem.jsx'
 import { useSupport } from './useSupport.js'
 
 /** Detalhe de uma publicação. Para relatos, mostra o acompanhamento completo. */

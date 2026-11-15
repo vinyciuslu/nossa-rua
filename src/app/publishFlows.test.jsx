@@ -245,3 +245,62 @@ describe('Criar anúncio (comércio)', () => {
     ).not.toBeInTheDocument()
   })
 })
+
+describe('Meus relatos', () => {
+  it('sem relatos, explica e leva para Relatar um problema', async () => {
+    await accounts.signInDemo('resident')
+    renderAt('/perfil/publicacoes')
+    expect(await heading('Meus relatos')).toBeInTheDocument()
+    expect(await screen.findByText('Você ainda não publicou relatos')).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Relatar um problema' })).toHaveAttribute(
+      'href',
+      '/relatar',
+    )
+  })
+
+  it('lista só os relatos da própria pessoa, do mais novo ao mais antigo, e abre o histórico', async () => {
+    const resident = await accounts.signInDemo('resident')
+    const base = {
+      account: resident,
+      category: 'road',
+      neighborhoodId: resident.neighborhoodId ?? 'sao-paulo/pinheiros',
+      description: 'Descrição longa o bastante para passar na validação do serviço.',
+      photo: new Blob(['x'], { type: 'image/jpeg' }),
+    }
+    await createReport({ ...base, title: 'Primeiro relato meu' })
+    clock.advance(3_600_000)
+    await createReport({ ...base, title: 'Segundo relato meu' })
+    await createReport({
+      ...base,
+      account: { id: 'acc_outra', type: 'cpf', neighborhoodId: base.neighborhoodId },
+      title: 'Relato de outra pessoa',
+    })
+
+    const user = userEvent.setup()
+    renderAt('/perfil/publicacoes')
+    const list = await screen.findByRole('list', { name: 'Seus relatos' })
+    const titles = [...list.querySelectorAll('h3')].map((h) => h.textContent)
+    expect(titles).toEqual(['Segundo relato meu', 'Primeiro relato meu'])
+    expect(screen.queryByText('Relato de outra pessoa')).not.toBeInTheDocument()
+
+    await user.click(screen.getAllByRole('button', { name: 'Acompanhar' })[0])
+    expect(await heading('Segundo relato meu')).toBeInTheDocument()
+    expect(await heading('Acompanhamento do relato', 2)).toBeInTheDocument()
+  })
+
+  it('comércio vê "Meus anúncios"', async () => {
+    await accounts.signInDemo('business')
+    renderAt('/perfil/publicacoes')
+    expect(await heading('Meus anúncios')).toBeInTheDocument()
+    expect(await screen.findByText('Nenhum anúncio ainda')).toBeInTheDocument()
+  })
+
+  it('o perfil tem o atalho', async () => {
+    await accounts.signInDemo('resident')
+    renderAt('/perfil')
+    expect(await screen.findByRole('link', { name: /Meus relatos/ })).toHaveAttribute(
+      'href',
+      '/perfil/publicacoes',
+    )
+  })
+})

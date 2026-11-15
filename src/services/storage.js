@@ -37,6 +37,18 @@ export const storage = {
     }
   },
 
+  /** O navegador deixa gravar? (Falso em navegação privativa restrita ou com o armazenamento bloqueado.) */
+  isAvailable() {
+    try {
+      const probe = PREFIX + 'probe'
+      window.localStorage.setItem(probe, '1')
+      window.localStorage.removeItem(probe)
+      return true
+    } catch {
+      return false
+    }
+  },
+
   /** Apaga somente as chaves do app. */
   clearAll() {
     try {

@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
-import { ChevronRight, LogOut, MapPin, Settings } from 'lucide-react'
+import { ChevronRight, FileText, LogOut, MapPin, Settings } from 'lucide-react'
 import { Page } from '../../components/layout/Page.jsx'
 import { Avatar } from '../../components/ui/Avatar.jsx'
 import { Badge } from '../../components/ui/Badge.jsx'
@@ -106,6 +106,16 @@ export function ProfilePage() {
       </section>
 
       <nav aria-label="Seções do perfil" className="flex flex-col gap-2">
+        <MenuLink
+          to="/perfil/publicacoes"
+          icon={FileText}
+          title={isCompany ? 'Meus anúncios' : 'Meus relatos'}
+          detail={
+            isCompany
+              ? 'Anúncios que você criou'
+              : 'Relatos que você criou e o andamento deles'
+          }
+        />
         <MenuLink
           to="/perfil/bairros"
           icon={MapPin}

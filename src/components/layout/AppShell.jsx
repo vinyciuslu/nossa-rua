@@ -2,6 +2,7 @@ import { Suspense, useRef } from 'react'
 import { Outlet } from 'react-router-dom'
 import { BottomNavigation } from './BottomNavigation.jsx'
 import { Header } from './Header.jsx'
+import { StorageNotice } from './StorageNotice.jsx'
 import { RouteFallback } from './RouteFallback.jsx'
 import { useRouteFocus } from './useRouteFocus.js'
 
@@ -28,6 +29,7 @@ export function AppShell() {
         tabIndex={-1}
         className="min-h-0 flex-1 overflow-y-auto overscroll-contain outline-none"
       >
+        <StorageNotice />
         <Suspense fallback={<RouteFallback />}>
           <Outlet />
         </Suspense>

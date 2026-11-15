@@ -95,3 +95,23 @@ describe('foco ao trocar de tela', () => {
     expect(main.scrollTo).toHaveBeenCalledWith({ top: 0 })
   })
 })
+
+describe('aviso de armazenamento', () => {
+  it('não aparece quando o navegador deixa gravar', () => {
+    renderApp('/inicio')
+    expect(
+      screen.queryByText('Este navegador não permite salvar dados'),
+    ).not.toBeInTheDocument()
+  })
+
+  it('avisa quando o navegador bloqueia o armazenamento', () => {
+    const spy = vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+      throw new Error('bloqueado')
+    })
+    renderApp('/inicio')
+    expect(
+      screen.getByText('Este navegador não permite salvar dados'),
+    ).toBeInTheDocument()
+    spy.mockRestore()
+  })
+})

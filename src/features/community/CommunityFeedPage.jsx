@@ -15,7 +15,7 @@ import { can } from '../../domain/account.js'
 import { FEED_FILTERS, filterFeed, sortFeed } from '../../domain/feed.js'
 import { getNeighborhood } from '../../domain/places.js'
 import { listPosts } from '../../services/postService.js'
-import { PostListItem } from './PostListItem.jsx'
+import { PostListItem } from '../../components/post/PostListItem.jsx'
 import { useSupport } from './useSupport.js'
 
 function FeedSkeleton() {

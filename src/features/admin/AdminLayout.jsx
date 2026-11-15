@@ -2,6 +2,7 @@ import { Suspense, useRef } from 'react'
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { LogOut } from 'lucide-react'
 import { Logo } from '../../components/layout/Logo.jsx'
+import { StorageNotice } from '../../components/layout/StorageNotice.jsx'
 import { RouteFallback } from '../../components/layout/RouteFallback.jsx'
 import { useRouteFocus } from '../../components/layout/useRouteFocus.js'
 import { Button } from '../../components/ui/Button.jsx'
@@ -80,6 +81,7 @@ export function AdminLayout() {
         tabIndex={-1}
         className="mx-auto max-w-6xl px-4 py-8 outline-none"
       >
+        <StorageNotice />
         <Suspense fallback={<RouteFallback />}>
           <Outlet />
         </Suspense>

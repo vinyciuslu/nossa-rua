@@ -74,6 +74,16 @@ function present(post, accountId, { supports, adminEvents, now }) {
   }
 }
 
+/** Publicações (relatos e anúncios) criadas pela própria conta, as mais novas primeiro. */
+export async function listPostsByAuthor(accountId) {
+  await wait()
+  const ctx = presentationContext(clock.now())
+  return readUserPosts()
+    .filter((p) => p.authorId === accountId)
+    .map((p) => present(p, accountId, ctx))
+    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+}
+
 /** Aviso do município inteiro (sem bairro) vale para quem acompanha qualquer bairro dele. */
 const cityOf = (neighborhoodId) => neighborhoodId.split('/')[0]
 

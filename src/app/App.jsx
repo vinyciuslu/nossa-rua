@@ -69,6 +69,10 @@ const FollowedPlacesPage = page(
   () => import('../features/profile/FollowedPlacesPage.jsx'),
   'FollowedPlacesPage',
 )
+const MyPostsPage = page(
+  () => import('../features/profile/MyPostsPage.jsx'),
+  'MyPostsPage',
+)
 const ProfilePage = page(
   () => import('../features/profile/ProfilePage.jsx'),
   'ProfilePage',
@@ -135,6 +139,7 @@ export function AppRoutes() {
           </Route>
           <Route path="perfil" element={<RequireResident />}>
             <Route index element={<ProfilePage />} />
+            <Route path="publicacoes" element={<MyPostsPage />} />
             <Route path="bairros" element={<FollowedPlacesPage />} />
             <Route path="configuracoes" element={<SettingsPage />} />
           </Route>
