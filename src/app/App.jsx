@@ -1,7 +1,7 @@
 import { Suspense, lazy } from 'react'
 import { createQueryClient } from './queryClient.js'
 import { QueryClientProvider } from '@tanstack/react-query'
-import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
+import { BrowserRouter, MemoryRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { AccessibilityProvider } from '../context/AccessibilityContext.jsx'
 import { ClockProvider } from '../context/ClockContext.jsx'
 import { SessionProvider } from '../context/SessionContext.jsx'
@@ -86,6 +86,10 @@ const StateDetailPage = page(
   'StateDetailPage',
 )
 
+// VITE_ROUTER=memory: o endereço não muda (para hospedar onde o app não controla a URL,
+// como uma página incorporada). Em uso normal, o roteador do navegador.
+const Router = import.meta.env.VITE_ROUTER === 'memory' ? MemoryRouter : BrowserRouter
+
 const queryClient = createQueryClient()
 
 /** Tudo que aparece dentro da moldura de smartphone (ou em tela cheia no celular). */
@@ -166,9 +170,9 @@ export function App() {
           <SessionProvider>
             <GuidedTap />
             <ErrorBoundary>
-              <BrowserRouter>
+              <Router>
                 <AppRoutes />
-              </BrowserRouter>
+              </Router>
             </ErrorBoundary>
           </SessionProvider>
         </ClockProvider>

@@ -13,6 +13,8 @@ npm test           # testes (Vitest)
 npm run lint       # oxlint (inclui regras de dependência entre módulos)
 npm run format     # prettier
 npm run build      # build de produção
+# build para hospedar em subcaminho, sem controlar a URL (ex.: página incorporada):
+VITE_ROUTER=memory APP_BASE=./ npm run build
 ```
 
 Rotas disponíveis:
