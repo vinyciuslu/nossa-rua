@@ -6,9 +6,11 @@ Plataforma web mobile-first de inteligência urbana colaborativa para moradores 
 
 ## Como rodar
 
+Requer Node.js 20.19 ou mais novo. Depois de descompactar, na pasta do projeto:
+
 ```bash
 npm install
-npm run dev        # desenvolvimento
+npm run dev        # desenvolvimento (abre em http://localhost:5173)
 npm test           # testes (Vitest)
 npm run lint       # oxlint (inclui regras de dependência entre módulos)
 npm run format     # prettier
